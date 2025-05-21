@@ -41,7 +41,7 @@ const AvailableBuilders = ({ builders, onAssignProject, selectedSlots, setSelect
       />
       <Grid container spacing={3}>
         {filteredBuilders.map((builder) => (
-          <Grid item xs={12} sm={6} md={4} key={`builder-${builder.id}`}>
+          <Grid key={`builder-${builder.id}`} sx={{ width: '100%', maxWidth: { xs: '100%', sm: '50%', md: '33.33%' } }}>
             <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
               <Typography variant="h6" className="text-gray-800">
                 {builder.first_name || 'Unknown'} {builder.last_name || ''}

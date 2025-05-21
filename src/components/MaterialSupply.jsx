@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Button, TextField, Alert } from '@mui/material';
+import { Typography, TextField, Button, Alert } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 
 const MaterialSupply = ({ onOrderMaterial }) => {
@@ -22,7 +22,7 @@ const MaterialSupply = ({ onOrderMaterial }) => {
         id: materials.length + 1,
         name: newMaterial.name,
         price: parseFloat(newMaterial.price),
-        supplier: user.storeName || 'Unknown Supplier',
+        supplier: user?.storeName || 'Unknown Supplier',
       },
     ]);
     setNewMaterial({ name: '', price: '' });
@@ -34,6 +34,18 @@ const MaterialSupply = ({ onOrderMaterial }) => {
       onOrderMaterial(material);
     }
   };
+
+  // If user is not loaded, show a loading state or redirect
+  if (!user) {
+    return (
+      <div className="space-y-4">
+        <Typography variant="h5" className="text-gray-800 font-semibold">
+          Material Supply
+        </Typography>
+        <Typography>Loading user data...</Typography>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -4,7 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import ProjectList from './pages/ProjectList';
+import ProjectList from './pages/ProjectsList';
 import Projects from './pages/Projects';
 import Materials from './pages/Materials';
 import AdminDashboard from './pages/AdminDashboard';

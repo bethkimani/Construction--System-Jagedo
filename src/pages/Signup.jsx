@@ -21,6 +21,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const additionalInfo = {
         first_name: formData.first_name,
@@ -28,9 +29,11 @@ const Signup = () => {
         ...(formData.user_type === 'builder' && { specialization: formData.specialization, company: formData.company }),
         ...(formData.user_type === 'hardware' && { storeName: formData.storeName }),
       };
+
       await signup(formData.email, formData.password, formData.user_type, additionalInfo);
-      navigate('/login');
+      // Navigation is handled in AuthContext
     } catch (err) {
+      console.error('Signup error:', err);
       setLoading(false);
     }
   };
@@ -71,7 +74,7 @@ const Signup = () => {
               <MenuItem value="client">Client</MenuItem>
               <MenuItem value="builder">Builder</MenuItem>
               <MenuItem value="hardware">Hardware Supplier</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem> {/* Added */}
+              <MenuItem value="admin">Admin</MenuItem>
             </Select>
           </FormControl>
           <TextField

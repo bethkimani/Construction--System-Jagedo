@@ -1,11 +1,15 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dummyUsers } from '../data/dummyData';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Initialize user from localStorage if available
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -14,59 +18,86 @@ export const AuthProvider = ({ children }) => {
       setError('Invalid user type');
       return Promise.reject(new Error('Invalid user type'));
     }
-    const userData = { email, password, user_type, ...additionalInfo };
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+
+    if (dummyUsers.some((u) => u.email === email)) {
+      setError('Email already exists');
+      return Promise.reject(new Error('Email already exists'));
+    }
+
+    if (!email || !password) {
+      setError('Email and password are required');
+      return Promise.reject(new Error('Email and password are required'));
+    }
+
+    if (!additionalInfo.first_name || !additionalInfo.last_name) {
+      setError('First name and last name are required');
+      return Promise.reject(new Error('First name and last name are required'));
+    }
+
+    if (user_type === 'builder' && (!additionalInfo.specialization || !additionalInfo.company)) {
+      setError('Specialization and company are required for builders');
+      return Promise.reject(new Error('Specialization and company are required for builders'));
+    }
+
+    if (user_type === 'hardware' && !additionalInfo.storeName) {
+      setError('Store name is required for hardware suppliers');
+      return Promise.reject(new Error('Store name is required for hardware suppliers'));
+    }
+
+    const newUser = {
+      id: dummyUsers.length + 1,
+      email,
+      password,
+      user_type,
+      ...additionalInfo,
+    };
+
+    dummyUsers.push(newUser);
+    setUser(newUser);
+    localStorage.setItem('user', JSON.stringify(newUser));
     setError('');
+    navigate('/login');
     return Promise.resolve();
   };
 
   const login = (email, password) => {
-    // First, check localStorage
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser && storedUser.email === email && storedUser.password === password) {
       setUser(storedUser);
-      console.log('Logged in from localStorage:', storedUser); // Debug log
+      console.log('Logged in from localStorage:', storedUser);
       setError('');
-      if (storedUser.user_type === 'client') {
-        navigate('/builders');
-      } else if (storedUser.user_type === 'builder') {
-        navigate('/projects');
-      } else if (storedUser.user_type === 'hardware') {
-        navigate('/materials');
-      } else if (storedUser.user_type === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      redirectUser(storedUser.user_type);
       return Promise.resolve();
     }
 
-    // If not found in localStorage, check dummyUsers
     const dummyUser = dummyUsers.find(
       (u) => u.email === email && u.password === password
     );
     if (dummyUser) {
       setUser(dummyUser);
-      console.log('Logged in from dummyUsers:', dummyUser); // Debug log
+      console.log('Logged in from dummyUsers:', dummyUser);
       localStorage.setItem('user', JSON.stringify(dummyUser));
       setError('');
-      if (dummyUser.user_type === 'client') {
-        navigate('/builders');
-      } else if (dummyUser.user_type === 'builder') {
-        navigate('/projects');
-      } else if (dummyUser.user_type === 'hardware') {
-        navigate('/materials');
-      } else if (dummyUser.user_type === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      redirectUser(dummyUser.user_type);
       return Promise.resolve();
     }
 
     setError('Invalid email or password');
     return Promise.reject(new Error('Invalid email or password'));
+  };
+
+  const redirectUser = (user_type) => {
+    if (user_type === 'client') {
+      navigate('/builders');
+    } else if (user_type === 'builder') {
+      navigate('/projects');
+    } else if (user_type === 'hardware') {
+      navigate('/materials');
+    } else if (user_type === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/');
+    }
   };
 
   const logout = () => {
