@@ -1,136 +1,150 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Typography, Box, Alert, CircularProgress, LinearProgress } from '@mui/material';
 import Header from '../components/Header';
 import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
 import ProjectsSection from '../components/ProjectsSection';
 import AvailableBuilders from '../components/AvailableBuilders';
-import EscrowManagement from '../components/EscrowManagement';
+import EscrowManagement from '../components/EscrowManagement'; // Ensure this import exists
 import ProjectLogs from '../components/ProjectLogs';
 import FAQs from '../components/FAQs';
-import { useAuth } from '../context/AuthContext';
-import { dummyBuilders, dummyProjects } from '../data/dummyData';
-import { aiAssignBuilder } from '../utils/aiAutomation';
+import MaterialSupply from '../components/MaterialSupply'; // Added
+import { dummyProjects, dummyBuilders } from '../data/dummyData';
 
 const ProjectList = () => {
-  const { user } = useAuth();
-  const [activeSection, setActiveSection] = useState('projectRequirementChecker');
-  const [projects, setProjects] = useState(dummyProjects);
-  const [selectedSlots, setSelectedSlots] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [assignedBuilder, setAssignedBuilder] = useState(null);
-  const [progress, setProgress] = useState(0); // Real-time progress tracker (innovation)
 
-  const bookProject = async (builderId) => {
-    const selectedSlot = selectedSlots[builderId];
-    if (!selectedSlot) {
-      setError('Please select a project start time');
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
       return;
     }
-
-    try {
-      setLoading(true);
-      const builder = dummyBuilders.find((b) => b.id === builderId);
-      if (!builder) {
-        throw new Error('Builder not found');
-      }
-      const newProject = {
-        id: projects.length + 1,
-        builder: `${builder.first_name} ${builder.last_name}`,
-        client: user.email,
-        scheduled_datetime: selectedSlot,
-        end_datetime: new Date(selectedSlot).setDate(new Date(selectedSlot).getDate() + 30), // Dummy end date
-        status: 'assigned',
-      };
-      setProjects([...projects, newProject]);
-      setError('');
-      alert('Project assigned successfully!');
-      setSelectedSlots((prev) => ({ ...prev, [builderId]: null }));
-      // Simulate progress update (innovation)
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return prev + 10;
-        });
-      }, 2000);
-    } catch (err) {
-      setError(err.message || 'Failed to assign project');
-    } finally {
-      setLoading(false);
+    if (user.user_type === 'builder') {
+      navigate('/projects');
+      return;
     }
+    if (user.user_type === 'hardware') { // Added
+      navigate('/materials');
+      return;
+    }
+    setTimeout(() => {
+      setProjects(dummyProjects);
+      setProgress(calculateProgress(dummyProjects));
+      setLoading(false);
+    }, 1000);
+  }, [user, navigate]);
+
+  const calculateProgress = (projects) => {
+    if (projects.length === 0) return 0;
+    const totalProgress = projects.reduce((sum, project) => {
+      return sum + parseInt(project.progress) || 0;
+    }, 0);
+    return totalProgress / projects.length;
   };
 
   const handleBuilderAssign = (builder) => {
-    setAssignedBuilder(builder);
-    if (builder) {
-      setSelectedSlots((prev) => ({ ...prev, [builder.id]: new Date() }));
-      bookProject(builder.id);
-    }
+    setProjects((prev) => {
+      const newProjects = [...prev];
+      if (newProjects.length > 0) {
+        newProjects[newProjects.length - 1].builder = `${builder.first_name} ${builder.last_name}`;
+      }
+      return newProjects;
+    });
+  };
+
+  const bookProject = (builder, projectDetails) => {
+    const newProject = {
+      id: projects.length + 1,
+      client: user.email,
+      builder: `${builder.first_name} ${builder.last_name}`,
+      date: new Date().toISOString().split('T')[0],
+      requirements: projectDetails.requirements,
+      progress: '0%',
+      notes: 'Project initiated',
+    };
+    setProjects((prev) => [...prev, newProject]);
+  };
+
+  const handleOrderMaterial = (material) => { // Added
+    setProjects((prev) => {
+      const updatedProjects = [...prev];
+      if (updatedProjects.length > 0) {
+        updatedProjects[updatedProjects.length - 1].notes += ` | Ordered ${material.name} from ${material.supplier} for ${material.price} KES`;
+      }
+      return updatedProjects;
+    });
   };
 
   const sections = {
     projectRequirementChecker: <ProjectRequirementChecker onBuilderAssign={handleBuilderAssign} />,
     projects: <ProjectsSection projects={projects} builders={dummyBuilders} />,
-    availableBuilders: <AvailableBuilders builders={dummyBuilders} onAssignProject={bookProject} selectedSlots={selectedSlots} setSelectedSlots={setSelectedSlots} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />,
+    availableBuilders: (
+      <AvailableBuilders
+        builders={dummyBuilders}
+        onAssignProject={bookProject}
+        projects={projects}
+        setProjects={setProjects}
+      />
+    ),
     escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
     projectLogs: <ProjectLogs />,
     faqs: <FAQs />,
+    materialSupply: <MaterialSupply onOrderMaterial={handleOrderMaterial} />, // Added
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <Header />
-      <div className="container mx-auto p-4">
-        <Typography variant="h4" className="text-blue-800 font-bold mb-6">
-          Construction Management System
-        </Typography>
-
-        {/* Real-Time Progress Tracker (Innovation) */}
-        {projects.length > 0 && (
-          <Box className="mb-6">
-            <Typography variant="h6">Project Progress Tracker</Typography>
-            <LinearProgress variant="determinate" value={progress} className="mt-2" />
-            <Typography>{progress}% Complete</Typography>
-          </Box>
-        )}
-
-        {/* Navigation Tabs */}
-        <div className="mb-6">
-          <div className="flex space-x-4 border-b">
-            {Object.keys(sections).map((section) => (
-              <button
-                key={section}
-                onClick={() => setActiveSection(section)}
-                className={`py-2 px-4 font-medium ${
-                  activeSection === section
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {section
-                  .split(/(?=[A-Z])/)
-                  .join(' ')
-                  .replace(/^\w/, (c) => c.toUpperCase())}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Error and Loading */}
-        {error && <Alert severity="error" className="mb-4">{error}</Alert>}
-        {loading && <CircularProgress className="my-4" />}
-
-        {/* Render Active Section */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          {sections[activeSection]}
-        </div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <CircularProgress />
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert severity="error">{error}</Alert>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <Header />
+      <Typography variant="h4" className="mb-6 text-gray-800">
+        Project Dashboard
+      </Typography>
+      <Box className="mb-6">
+        <Typography variant="h6">Project Progress Tracker</Typography>
+        <LinearProgress variant="determinate" value={progress} className="mt-2" />
+        <Typography>{progress}% Complete</Typography>
+      </Box>
+      {Object.keys(sections).map((sectionKey) => (
+        <Box key={sectionKey} className="mb-8">
+          {sections[sectionKey]}
+        </Box>
+      ))}
+      <Button variant="contained" color="secondary" onClick={logout} className="mt-6">
+        Logout
+      </Button>
     </div>
   );
+};
+// Inside ProjectList.jsx, update handleOrderMaterial
+const handleOrderMaterial = (material) => {
+  setProjects((prev) => {
+    const updatedProjects = [...prev];
+    if (updatedProjects.length > 0) {
+      updatedProjects[updatedProjects.length - 1].notes += ` | Ordered ${material.name} from ${material.supplier} for ${material.price} KES (Material Source: Eco-Friendly)`;
+    }
+    return updatedProjects;
+  });
 };
 
 export default ProjectList;

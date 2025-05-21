@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const signup = (email, password, user_type, additionalInfo) => {
-    if (!['client', 'builder', 'hardware'].includes(user_type)) { // Added 'hardware'
+    if (!['client', 'builder', 'hardware', 'admin'].includes(user_type)) { // Added 'admin'
       setError('Invalid user type');
       return Promise.reject(new Error('Invalid user type'));
     }
@@ -29,8 +29,10 @@ export const AuthProvider = ({ children }) => {
         navigate('/builders');
       } else if (storedUser.user_type === 'builder') {
         navigate('/projects');
-      } else if (storedUser.user_type === 'hardware') { // Added hardware redirect
+      } else if (storedUser.user_type === 'hardware') {
         navigate('/materials');
+      } else if (storedUser.user_type === 'admin') { // Added
+        navigate('/admin');
       } else {
         navigate('/');
       }
