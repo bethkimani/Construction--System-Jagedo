@@ -7,13 +7,13 @@ import Signup from './pages/Signup';
 import ProjectList from './pages/ProjectList';
 import Projects from './pages/Projects';
 import Materials from './pages/Materials';
-import AdminDashboard from './pages/AdminDashboard'; // Added
+import AdminDashboard from './pages/AdminDashboard';
 import ConstructionChatbot from './components/ConstructionChatbot';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router> {/* Move Router outside AuthProvider */}
+      <AuthProvider>
         <ConstructionChatbot />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -22,10 +22,10 @@ function App() {
           <Route path="/builders" element={<ProjectList />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/materials" element={<Materials />} />
-          <Route path="/admin" element={<AdminDashboard />} /> {/* Added */}
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
