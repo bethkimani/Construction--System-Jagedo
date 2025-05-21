@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { dummyUsers } from '../data/dummyData'; // Add this import
+import { dummyUsers } from '../data/dummyData';
 
 const AuthContext = createContext();
 
@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser && storedUser.email === email && storedUser.password === password) {
       setUser(storedUser);
+      console.log('Logged in from localStorage:', storedUser); // Debug log
       setError('');
       if (storedUser.user_type === 'client') {
         navigate('/builders');
@@ -47,7 +48,8 @@ export const AuthProvider = ({ children }) => {
     );
     if (dummyUser) {
       setUser(dummyUser);
-      localStorage.setItem('user', JSON.stringify(dummyUser)); // Store in localStorage for future logins
+      console.log('Logged in from dummyUsers:', dummyUser); // Debug log
+      localStorage.setItem('user', JSON.stringify(dummyUser));
       setError('');
       if (dummyUser.user_type === 'client') {
         navigate('/builders');
@@ -63,7 +65,6 @@ export const AuthProvider = ({ children }) => {
       return Promise.resolve();
     }
 
-    // If no user is found, set error
     setError('Invalid email or password');
     return Promise.reject(new Error('Invalid email or password'));
   };

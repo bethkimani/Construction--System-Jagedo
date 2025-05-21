@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Typography, Box, Alert, CircularProgress, LinearProgress } from '@mui/material';
+import { Typography, Box, Alert, CircularProgress, LinearProgress, Button } from '@mui/material'; // Added Button
 import Header from '../components/Header';
 import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
 import ProjectsSection from '../components/ProjectsSection';
 import AvailableBuilders from '../components/AvailableBuilders';
-import EscrowManagement from '../components/EscrowManagement'; // Ensure this import exists
+import EscrowManagement from '../components/EscrowManagement';
 import ProjectLogs from '../components/ProjectLogs';
 import FAQs from '../components/FAQs';
-import MaterialSupply from '../components/MaterialSupply'; // Added
+import MaterialSupply from '../components/MaterialSupply';
 import { dummyProjects, dummyBuilders } from '../data/dummyData';
 
 const ProjectList = () => {
@@ -29,7 +29,7 @@ const ProjectList = () => {
       navigate('/projects');
       return;
     }
-    if (user.user_type === 'hardware') { // Added
+    if (user.user_type === 'hardware') {
       navigate('/materials');
       return;
     }
@@ -71,11 +71,11 @@ const ProjectList = () => {
     setProjects((prev) => [...prev, newProject]);
   };
 
-  const handleOrderMaterial = (material) => { // Added
+  const handleOrderMaterial = (material) => {
     setProjects((prev) => {
       const updatedProjects = [...prev];
       if (updatedProjects.length > 0) {
-        updatedProjects[updatedProjects.length - 1].notes += ` | Ordered ${material.name} from ${material.supplier} for ${material.price} KES`;
+        updatedProjects[updatedProjects.length - 1].notes += ` | Ordered ${material.name} from ${material.supplier} for ${material.price} KES (Material Source: Eco-Friendly)`;
       }
       return updatedProjects;
     });
@@ -95,7 +95,7 @@ const ProjectList = () => {
     escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
     projectLogs: <ProjectLogs />,
     faqs: <FAQs />,
-    materialSupply: <MaterialSupply onOrderMaterial={handleOrderMaterial} />, // Added
+    materialSupply: <MaterialSupply onOrderMaterial={handleOrderMaterial} />,
   };
 
   if (loading) {
@@ -135,16 +135,6 @@ const ProjectList = () => {
       </Button>
     </div>
   );
-};
-// Inside ProjectList.jsx, update handleOrderMaterial
-const handleOrderMaterial = (material) => {
-  setProjects((prev) => {
-    const updatedProjects = [...prev];
-    if (updatedProjects.length > 0) {
-      updatedProjects[updatedProjects.length - 1].notes += ` | Ordered ${material.name} from ${material.supplier} for ${material.price} KES (Material Source: Eco-Friendly)`;
-    }
-    return updatedProjects;
-  });
 };
 
 export default ProjectList;
