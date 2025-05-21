@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { dummyUsers } from '../data/dummyData'; // Add this import
 
 const AuthContext = createContext();
 
@@ -9,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const signup = (email, password, user_type, additionalInfo) => {
-    if (!['client', 'builder', 'hardware', 'admin'].includes(user_type)) { // Added 'admin'
+    if (!['client', 'builder', 'hardware', 'admin'].includes(user_type)) {
       setError('Invalid user type');
       return Promise.reject(new Error('Invalid user type'));
     }
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = (email, password) => {
+    // First, check localStorage
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser && storedUser.email === email && storedUser.password === password) {
       setUser(storedUser);
@@ -31,13 +33,37 @@ export const AuthProvider = ({ children }) => {
         navigate('/projects');
       } else if (storedUser.user_type === 'hardware') {
         navigate('/materials');
-      } else if (storedUser.user_type === 'admin') { // Added
+      } else if (storedUser.user_type === 'admin') {
         navigate('/admin');
       } else {
         navigate('/');
       }
       return Promise.resolve();
     }
+
+    // If not found in localStorage, check dummyUsers
+    const dummyUser = dummyUsers.find(
+      (u) => u.email === email && u.password === password
+    );
+    if (dummyUser) {
+      setUser(dummyUser);
+      localStorage.setItem('user', JSON.stringify(dummyUser)); // Store in localStorage for future logins
+      setError('');
+      if (dummyUser.user_type === 'client') {
+        navigate('/builders');
+      } else if (dummyUser.user_type === 'builder') {
+        navigate('/projects');
+      } else if (dummyUser.user_type === 'hardware') {
+        navigate('/materials');
+      } else if (dummyUser.user_type === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+      return Promise.resolve();
+    }
+
+    // If no user is found, set error
     setError('Invalid email or password');
     return Promise.reject(new Error('Invalid email or password'));
   };
