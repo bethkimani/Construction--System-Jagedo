@@ -1,27 +1,24 @@
-// Simulated AI functions for automation
-export const aiSymptomChecker = (symptoms) => {
-  // Dummy AI logic for symptom checking
-  if (symptoms.toLowerCase().includes('headache') || symptoms.toLowerCase().includes('fever')) {
-    return { diagnosis: 'Possible Common Cold', recommendation: 'See a General Physician', severity: 'Mild' };
-  } else if (symptoms.toLowerCase().includes('chest pain')) {
-    return { diagnosis: 'Possible Heart Issue', recommendation: 'See a Cardiologist', severity: 'Severe' };
-  } else if (symptoms.toLowerCase().includes('tooth pain')) {
-    return { diagnosis: 'Dental Issue', recommendation: 'See a Dentist', severity: 'Moderate' };
+export const aiProjectRequirementChecker = (requirements) => {
+  if (requirements.toLowerCase().includes('foundation') || requirements.toLowerCase().includes('concrete')) {
+    return { recommendation: 'Consult a Civil Engineer', complexity: 'High' };
+  } else if (requirements.toLowerCase().includes('plumbing')) {
+    return { recommendation: 'Consult a Plumber', complexity: 'Moderate' };
+  } else if (requirements.toLowerCase().includes('roofing')) {
+    return { recommendation: 'Consult a Roofer', complexity: 'Moderate' };
   }
-  return { diagnosis: 'Unknown', recommendation: 'Consult a doctor', severity: 'Unknown' };
+  return { recommendation: 'Consult a General Contractor', complexity: 'Unknown' };
 };
 
-export const aiAssignDoctor = (specialization, doctors) => {
-  // Dummy AI logic to assign an available doctor
-  const availableDoctor = doctors.find((doc) => doc.specialization.toLowerCase() === specialization.toLowerCase());
-  return availableDoctor || doctors[0]; // Fallback to first doctor if no match
+export const aiAssignBuilder = (specialization, builders) => {
+  const availableBuilder = builders.find((b) => b.specialization.toLowerCase() === specialization.toLowerCase());
+  return availableBuilder || builders[0];
 };
 
-export const aiGenerateReceipt = (patient, doctor, amount, date) => {
+export const aiGenerateReceipt = (client, builder, amount, date) => {
   return {
     receiptId: Math.floor(Math.random() * 100000),
-    patient,
-    doctor,
+    client,
+    builder,
     amount,
     date,
     status: 'Paid',
@@ -29,7 +26,6 @@ export const aiGenerateReceipt = (patient, doctor, amount, date) => {
 };
 
 export const aiSendNotification = (email, message) => {
-  // Simulate sending email notification
   console.log(`Sending notification to ${email}: ${message}`);
   return { status: 'Sent', email, message };
 };

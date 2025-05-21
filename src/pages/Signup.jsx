@@ -5,7 +5,7 @@ import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Alert, Ty
 import { dummyUsers } from '../data/dummyData';
 
 const Signup = () => {
-  const [userType, setUserType] = useState('patient');
+  const [userType, setUserType] = useState('client');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -13,8 +13,8 @@ const Signup = () => {
     last_name: '',
     phone: '',
     specialization: '',
-    hospital: '',
-    insurance_number: '',
+    company: '',
+    license_number: '',
     id_number: '',
     address: '',
   });
@@ -25,13 +25,11 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Check if email already exists
       if (dummyUsers.some((user) => user.email === formData.email)) {
         throw new Error('Email already exists. Please use a different email.');
       }
 
-      // Simulate API call to create a new user
-      const endpoint = userType === 'doctor' ? '/doctors/' : '/patients/';
+      const endpoint = userType === 'builder' ? '/builders/' : '/clients/';
       const newUser = {
         user: {
           email: formData.email,
@@ -40,21 +38,20 @@ const Signup = () => {
           last_name: formData.last_name,
           user_type: userType,
         },
-        ...(userType === 'doctor' && {
+        ...(userType === 'builder' && {
           phone: formData.phone,
           specialization: formData.specialization,
-          hospital: formData.hospital,
+          company: formData.company,
         }),
-        ...(userType === 'patient' && {
+        ...(userType === 'client' && {
           phone: formData.phone,
-          insurance_number: formData.insurance_number,
+          license_number: formData.license_number,
           id_number: formData.id_number,
           address: formData.address,
         }),
       };
       const response = await api.post(endpoint, newUser);
 
-      // Add the new user to dummyUsers
       dummyUsers.push({
         id: response.data.id,
         email: formData.email,
@@ -63,12 +60,12 @@ const Signup = () => {
         last_name: formData.last_name,
         user_type: userType,
         phone: formData.phone,
-        ...(userType === 'doctor' && {
+        ...(userType === 'builder' && {
           specialization: formData.specialization,
-          hospital: formData.hospital,
+          company: formData.company,
         }),
-        ...(userType === 'patient' && {
-          insurance_number: formData.insurance_number,
+        ...(userType === 'client' && {
+          license_number: formData.license_number,
           id_number: formData.id_number,
           address: formData.address,
         }),
@@ -85,14 +82,14 @@ const Signup = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-6 bg-white rounded-lg shadow-lg w-full max-w-sm">
         <Typography variant="h5" className="text-center mb-4">
-          Sign up to Healthcare System
+          Sign up to Construction Management System
         </Typography>
         <form onSubmit={handleSubmit}>
           <FormControl fullWidth className="mb-4">
             <InputLabel>Account Type</InputLabel>
             <Select value={userType} onChange={(e) => setUserType(e.target.value)} label="Account Type">
-              <MenuItem value="patient">Patient</MenuItem>
-              <MenuItem value="doctor">Doctor</MenuItem>
+              <MenuItem value="client">Client</MenuItem>
+              <MenuItem value="builder">Builder</MenuItem>
             </Select>
           </FormControl>
           <TextField
@@ -137,7 +134,7 @@ const Signup = () => {
             required
             className="mb-4"
           />
-          {userType === 'doctor' && (
+          {userType === 'builder' && (
             <>
               <TextField
                 label="Specialization"
@@ -148,21 +145,21 @@ const Signup = () => {
                 className="mb-4"
               />
               <TextField
-                label="Hospital"
-                value={formData.hospital}
-                onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
+                label="Company"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                 fullWidth
                 required
                 className="mb-4"
               />
             </>
           )}
-          {userType === 'patient' && (
+          {userType === 'client' && (
             <>
               <TextField
-                label="Insurance Number"
-                value={formData.insurance_number}
-                onChange={(e) => setFormData({ ...formData, insurance_number: e.target.value })}
+                label="License Number"
+                value={formData.license_number}
+                onChange={(e) => setFormData({ ...formData, license_number: e.target.value })}
                 fullWidth
                 required
                 className="mb-4"

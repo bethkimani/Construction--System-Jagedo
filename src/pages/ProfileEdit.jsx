@@ -4,15 +4,15 @@ import { Box, TextField, Typography, Button, Alert } from '@mui/material';
 import Header from '../components/Header';
 
 const ProfileEdit = () => {
-  const { user, setUser } = useAuth(); // Add setUser to update user state
+  const { user, setUser } = useAuth();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
     email: '',
     phone: '',
     specialization: '',
-    hospital: '',
-    insurance_number: '',
+    company: '',
+    license_number: '',
     id_number: '',
     address: '',
   });
@@ -27,8 +27,8 @@ const ProfileEdit = () => {
         email: user.email || '',
         phone: user.phone || '',
         specialization: user.specialization || '',
-        hospital: user.hospital || '',
-        insurance_number: user.insurance_number || '',
+        company: user.company || '',
+        license_number: user.license_number || '',
         id_number: user.id_number || '',
         address: user.address || '',
       });
@@ -38,7 +38,6 @@ const ProfileEdit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Simulate profile update by updating localStorage
       const updatedUser = {
         ...user,
         first_name: formData.first_name,
@@ -46,13 +45,13 @@ const ProfileEdit = () => {
         email: formData.email,
         phone: formData.phone,
         specialization: formData.specialization,
-        hospital: formData.hospital,
-        insurance_number: formData.insurance_number,
+        company: formData.company,
+        license_number: formData.license_number,
         id_number: formData.id_number,
         address: formData.address,
       };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      setUser(updatedUser); // Update the user state in AuthContext
+      setUser(updatedUser);
       setSuccess('Profile updated successfully');
       setError('');
     } catch (err) {
@@ -94,7 +93,7 @@ const ProfileEdit = () => {
             fullWidth
             className="mt-4"
           />
-          {user?.user_type === 'doctor' && (
+          {user?.user_type === 'builder' && (
             <>
               <TextField
                 label="Specialization"
@@ -104,20 +103,20 @@ const ProfileEdit = () => {
                 className="mt-4"
               />
               <TextField
-                label="Hospital"
-                value={formData.hospital}
-                onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
+                label="Company"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                 fullWidth
                 className="mt-4"
               />
             </>
           )}
-          {user?.user_type === 'patient' && (
+          {user?.user_type === 'client' && (
             <>
               <TextField
-                label="Insurance Number"
-                value={formData.insurance_number}
-                onChange={(e) => setFormData({ ...formData, insurance_number: e.target.value })}
+                label="License Number"
+                value={formData.license_number}
+                onChange={(e) => setFormData({ ...formData, license_number: e.target.value })}
                 fullWidth
                 className="mt-4"
               />

@@ -1,46 +1,44 @@
-// Simulated user database
 export let dummyUsers = [
   {
     id: 1,
-    email: 'patient1@example.com',
+    email: 'client1@example.com',
     password: 'password123',
     first_name: 'Jane',
     last_name: 'Smith',
-    user_type: 'patient',
+    user_type: 'client',
     phone: '123-456-7890',
-    insurance_number: 'INS123',
+    license_number: 'LIC123',
     id_number: 'ID123',
     address: '123 Main St',
   },
   {
     id: 2,
-    email: 'doctor1@example.com',
+    email: 'builder1@example.com',
     password: 'password123',
     first_name: 'John',
     last_name: 'Doe',
-    user_type: 'doctor',
+    user_type: 'builder',
     phone: '234-567-8901',
-    specialization: 'Cardiologist',
-    hospital: 'City Hospital',
+    specialization: 'Civil Engineer',
+    company: 'BuildCo',
   },
 ];
 
-// Existing dummy data
-export const dummyDoctors = [
-  { id: 1, first_name: "John", last_name: "Doe", specialization: "Cardiologist", email: "john.doe@hospital.com", phone: "123-456-7890", hospital: "City Hospital" },
-  { id: 2, first_name: "Sarah", last_name: "Smith", specialization: "Dentist", email: "sarah.smith@hospital.com", phone: "234-567-8901", hospital: "Dental Clinic" },
-  { id: 3, first_name: "Emily", last_name: "Johnson", specialization: "Optician", email: "emily.johnson@hospital.com", phone: "345-678-9012", hospital: "Eye Care Center" },
+export const dummyBuilders = [
+  { id: 1, first_name: "John", last_name: "Doe", specialization: "Civil Engineer", email: "john.doe@buildco.com", phone: "123-456-7890", company: "BuildCo" },
+  { id: 2, first_name: "Sarah", last_name: "Smith", specialization: "Plumber", email: "sarah.smith@buildco.com", phone: "234-567-8901", company: "PipeFix" },
+  { id: 3, first_name: "Emily", last_name: "Johnson", specialization: "Roofer", email: "emily.johnson@buildco.com", phone: "345-678-9012", company: "RoofPro" },
 ];
 
-export const dummyAppointments = [
-  { id: 1, doctor: "Dr. John Doe", patient: "Jane Smith", scheduled_datetime: "2025-05-21T10:00:00", follow_up_datetime: "2025-05-28T10:00:00", status: "booked" },
+export const dummyProjects = [
+  { id: 1, builder: "John Doe", client: "Jane Smith", scheduled_datetime: "2025-05-21T10:00:00", end_datetime: "2025-06-21T10:00:00", status: "assigned" },
 ];
 
-export const dummyHealthLogs = [
-  { id: 1, patient: "Jane Smith", date: "2025-05-15", symptoms: "Headache, Fever", diagnosis: "Common Cold", treatment: "Rest, Paracetamol" },
+export const dummyProjectLogs = [
+  { id: 1, client: "Jane Smith", date: "2025-05-15", requirements: "Foundation Work", progress: "50%", notes: "Concrete poured" },
 ];
 
 export const dummyFAQs = [
-  { question: "How do I book an appointment?", answer: "Go to the Doctors page, select a doctor, and choose an available slot." },
-  { question: "How can I check my health logs?", answer: "Visit the Health Logs section to view your medical history." },
+  { question: "How do I assign a project?", answer: "Go to the Builders page, select a builder, and choose a start time." },
+  { question: "How can I track project progress?", answer: "Visit the Project Logs section or use the real-time progress tracker on the main page." },
 ];

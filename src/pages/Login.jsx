@@ -24,7 +24,7 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-6 bg-white rounded-lg shadow-lg w-full max-w-sm">
         <Typography variant="h5" className="text-center mb-4">
-          Sign in to Healthcare System
+          Sign in to Construction Management System
         </Typography>
         {error && <Alert severity="error" className="mb-4">{error}</Alert>}
         <form onSubmit={handleSubmit}>

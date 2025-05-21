@@ -3,16 +3,16 @@ import Chatbot from 'react-chatbot-kit';
 import 'react-chatbot-kit/build/main.css';
 
 const config = {
-  botName: "HealthBot",
-  initialMessages: [{ id: 1, message: "Hello! How can I assist you today?", createdBy: "bot" }],
+  botName: "BuildBot",
+  initialMessages: [{ id: 1, message: "Hello! How can I assist you with your construction project today?", createdBy: "bot" }],
 };
 
 const MessageParser = ({ children, actions }) => {
   const parse = (message) => {
-    if (message.toLowerCase().includes('appointment')) {
-      actions.handleAppointmentQuery();
-    } else if (message.toLowerCase().includes('symptom')) {
-      actions.handleSymptomQuery();
+    if (message.toLowerCase().includes('project')) {
+      actions.handleProjectQuery();
+    } else if (message.toLowerCase().includes('material')) {
+      actions.handleMaterialQuery();
     } else {
       actions.handleDefault();
     }
@@ -21,34 +21,34 @@ const MessageParser = ({ children, actions }) => {
 };
 
 const ActionProvider = ({ createChatBotMessage, setState, children }) => {
-  const handleAppointmentQuery = () => {
-    const botMessage = createChatBotMessage("You can book an appointment from the Doctors page!");
+  const handleProjectQuery = () => {
+    const botMessage = createChatBotMessage("You can assign a project from the Builders page!");
     setState((prev) => ({ ...prev, messages: [...prev.messages, botMessage] }));
   };
 
-  const handleSymptomQuery = () => {
-    const botMessage = createChatBotMessage("Please describe your symptoms, and I'll help you!");
+  const handleMaterialQuery = () => {
+    const botMessage = createChatBotMessage("You can order materials from the Project List page under Material Supply!");
     setState((prev) => ({ ...prev, messages: [...prev.messages, botMessage] }));
   };
 
   const handleDefault = () => {
-    const botMessage = createChatBotMessage("I'm not sure how to help with that. Try asking about appointments or symptoms!");
+    const botMessage = createChatBotMessage("I'm not sure how to help with that. Try asking about projects or materials!");
     setState((prev) => ({ ...prev, messages: [...prev.messages, botMessage] }));
   };
 
   return (
     <div>
       {React.Children.map(children, (child) =>
-        React.cloneElement(child, { actions: { handleAppointmentQuery, handleSymptomQuery, handleDefault } })
+        React.cloneElement(child, { actions: { handleProjectQuery, handleMaterialQuery, handleDefault } })
       )}
     </div>
   );
 };
 
-const ChatbotComponent = () => (
+const ConstructionChatbot = () => (
   <div className="fixed bottom-4 right-4">
     <Chatbot config={config} messageParser={MessageParser} actionProvider={ActionProvider} />
   </div>
 );
 
-export default ChatbotComponent;
+export default ConstructionChatbot;

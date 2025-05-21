@@ -6,15 +6,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import DoctorList from './pages/DoctorList';
-import Appointments from './pages/Appointments';
-import DoctorAvailability from './pages/DoctorAvailability';
+import ProjectList from './pages/ProjectList';
+import Projects from './pages/Projects';
+import BuilderAvailability from './pages/BuilderAvailability';
 import ProfileEdit from './pages/ProfileEdit';
 import ProtectedRoute from './pages/ProtectedRoute';
-import Chatbot from './components/Chatbot';
+import ConstructionChatbot from './components/ConstructionChatbot';
 import { useAuth } from './context/AuthContext';
 
-// Error Boundary Component
 class ErrorBoundary extends Component {
   state = { hasError: false };
 
@@ -49,15 +48,15 @@ function App() {
                   <Route path="/signup" element={<Signup />} />
                   <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<HomeRedirect />} />
-                    <Route path="/doctors" element={<DoctorList />} />
-                    <Route path="/appointments" element={<Appointments />} />
-                    <Route path="/doctor-availability" element={<DoctorAvailability />} />
+                    <Route path="/builders" element={<ProjectList />} />
+                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/builder-availability" element={<BuilderAvailability />} />
                     <Route path="/profile" element={<ProfileEdit />} />
                   </Route>
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </ErrorBoundary>
-              <Chatbot />
+              <ConstructionChatbot />
             </div>
           </Router>
         </LocalizationProvider>
@@ -69,10 +68,10 @@ function App() {
 const HomeRedirect = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  return user.user_type === 'patient' ? (
-    <Navigate to="/doctors" replace />
+  return user.user_type === 'client' ? (
+    <Navigate to="/builders" replace />
   ) : (
-    <Navigate to="/appointments" replace />
+    <Navigate to="/projects" replace />
   );
 };
 

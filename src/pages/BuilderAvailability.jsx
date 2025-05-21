@@ -4,7 +4,7 @@ import { Button, Box, Alert, Typography, CircularProgress } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers';
 import Header from '../components/Header';
 
-const DoctorAvailability = () => {
+const BuilderAvailability = () => {
   const { user } = useAuth();
   const [availability, setAvailability] = useState({
     start_datetime: null,
@@ -27,7 +27,6 @@ const DoctorAvailability = () => {
       if (start >= end) {
         throw new Error('End time must be after start time');
       }
-      // Simulate API call
       setSuccess('Availability added successfully');
       setError('');
       setAvailability({ start_datetime: null, end_datetime: null });
@@ -42,7 +41,7 @@ const DoctorAvailability = () => {
     <div className="p-4">
       <Header />
       <div className="mt-4 max-w-md mx-auto">
-        <Typography variant="h4">Set Doctor Availability</Typography>
+        <Typography variant="h4">Set Builder Availability</Typography>
         <form onSubmit={handleSubmit}>
           <DateTimePicker
             label="Start Time"
@@ -78,4 +77,4 @@ const DoctorAvailability = () => {
   );
 };
 
-export default DoctorAvailability;
+export default BuilderAvailability;
