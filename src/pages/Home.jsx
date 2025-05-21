@@ -40,7 +40,7 @@ const Home = () => {
           <span role="img" aria-label="Builder">👷</span> Builder
         </Link>
         <Link
-          to="/login?type=hardware" // Added
+          to="/login?type=hardware"
           style={{
             textDecoration: 'none',
             color: 'black',
@@ -55,20 +55,24 @@ const Home = () => {
           <span role="img" aria-label="Hardware Supplier">🛠️</span> Hardware Supplier
         </Link>
       </div>
-      <Link
-        to="/login"
-        style={{
-          display: 'inline-block',
-          marginTop: '20px',
-          padding: '10px 20px',
-          backgroundColor: '#1976d2',
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '5px',
-        }}
-      >
-        Log In
-      </Link>
+      <div style={{ marginTop: '20px' }}>
+        <Link
+          to="/login"
+          style={{
+            display: 'inline-block',
+            padding: '10px 20px',
+            backgroundColor: '#1976d2',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '5px',
+          }}
+        >
+          Log In (Clients, Builders, Suppliers, and Admins)
+        </Link>
+      </div>
+      <p style={{ marginTop: '10px', color: '#666' }}>
+        Admins: Use the Log In button above to access the admin dashboard.
+      </p>
     </div>
   );
 };
