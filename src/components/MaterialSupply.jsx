@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Typography, Button, TextField, Alert } from '@mui/material';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const MaterialSupply = ({ onOrderMaterial }) => {
@@ -37,63 +36,52 @@ const MaterialSupply = ({ onOrderMaterial }) => {
 
   return (
     <div className="space-y-4">
-      <Typography variant="h5" className="text-gray-800 font-semibold">
-        Material Supply
-      </Typography>
-      <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
+      <h2 className="text-2xl font-semibold text-primary-blue">Material Supply</h2>
+      <div className="p-6 bg-white rounded-lg shadow-md">
         {user.user_type === 'hardware' ? (
           <>
-            <Typography variant="h6" className="mb-4 text-gray-700">
-              Add New Material
-            </Typography>
-            <TextField
-              label="Material Name"
+            <h3 className="text-lg font-medium text-text-gray mb-4">Add New Material</h3>
+            <input
+              type="text"
+              placeholder="Material Name"
               value={newMaterial.name}
               onChange={(e) => setNewMaterial({ ...newMaterial, name: e.target.value })}
-              fullWidth
-              className="mb-4"
+              className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue mb-4"
             />
-            <TextField
-              label="Price (KES)"
+            <input
               type="number"
+              placeholder="Price (KES)"
               value={newMaterial.price}
               onChange={(e) => setNewMaterial({ ...newMaterial, price: e.target.value })}
-              fullWidth
-              className="mb-4"
+              className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue mb-4"
             />
-            <Button
-              variant="contained"
-              color="primary"
+            <button
               onClick={handleAddMaterial}
-              className="w-full"
+              className="w-full bg-primary-blue text-white p-2 rounded hover:bg-blue-800"
             >
               Add Material
-            </Button>
-            {error && <Alert severity="error" className="mt-4">{error}</Alert>}
+            </button>
+            {error && <div className="bg-red-100 text-red-700 p-4 rounded mt-4">{error}</div>}
           </>
         ) : (
-          <Typography variant="h6" className="mb-4 text-gray-700">
-            Available Materials
-          </Typography>
+          <h3 className="text-lg font-medium text-text-gray mb-4">Available Materials</h3>
         )}
         <div className="mt-4">
           {materials.length === 0 ? (
-            <Typography>No materials available.</Typography>
+            <p className="text-text-gray">No materials available.</p>
           ) : (
             materials.map((material) => (
-              <div key={material.id} className="mb-2 p-2 border rounded">
-                <Typography>Name: {material.name}</Typography>
-                <Typography>Price: {material.price} KES</Typography>
-                <Typography>Supplier: {material.supplier}</Typography>
+              <div key={material.id} className="mb-2 p-4 border border-light-gray rounded">
+                <p className="text-text-gray">Name: {material.name}</p>
+                <p className="text-text-gray">Price: {material.price} KES</p>
+                <p className="text-text-gray">Supplier: {material.supplier}</p>
                 {user.user_type === 'client' && (
-                  <Button
-                    variant="contained"
-                    color="primary"
+                  <button
                     onClick={() => handleOrderMaterial(material)}
-                    className="mt-2"
+                    className="mt-2 w-full bg-primary-blue text-white p-2 rounded hover:bg-blue-800"
                   >
                     Order Material
-                  </Button>
+                  </button>
                 )}
               </div>
             ))

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -27,41 +26,49 @@ const Login = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-6 bg-white rounded-lg shadow-lg w-full max-w-sm">
-        <Typography variant="h5" className="text-center mb-4">
-          Log In to JaGedo
-        </Typography>
-        <Typography variant="body2" className="text-center mb-4 text-gray-600">
+        <h2 className="text-2xl font-semibold text-primary-blue text-center mb-4">Log In to JaGedo</h2>
+        <p className="text-center text-text-gray mb-4">
           For {userType === 'client' ? 'Clients' : userType === 'builder' ? 'Builders' : userType === 'hardware' ? 'Hardware Suppliers' : 'Admins'}
-        </Typography>
-        <Typography variant="body2" className="text-center mb-4 text-gray-600">
+        </p>
+        <p className="text-center text-text-gray mb-4">
           All users (Clients, Builders, Suppliers, Admins) log in here. You’ll be redirected to the appropriate dashboard.
-        </Typography>
-        {error && <Alert severity="error" className="mb-4">{error}</Alert>}
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Email Address"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            fullWidth
-            required
-            className="mb-4"
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            fullWidth
-            required
-            className="mb-4"
-          />
-          <Button type="submit" variant="contained" fullWidth disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : 'Log In'}
-          </Button>
+        </p>
+        {error && <div className="bg-red-100 text-red-700 p-4 rounded mb-4">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-text-gray mb-1">Email Address</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-text-gray mb-1">Password</label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-primary-blue text-white p-2 rounded hover:bg-blue-800"
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-white mx-auto"></div>
+            ) : (
+              'Log In'
+            )}
+          </button>
         </form>
         <div className="mt-4 text-center">
-          <Link to="/signup" className="text-blue-500 hover:underline">
+          <Link to="/signup" className="text-primary-blue hover:underline">
             Don’t have an account? Sign Up
           </Link>
         </div>

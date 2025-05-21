@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Button, CircularProgress, Alert, Box, Typography } from '@mui/material';
-import { DateTimePicker } from '@mui/x-date-pickers';
 import Header from '../components/Header';
 import { dummyProjects } from '../data/dummyData';
+import BuilderAvailability from './BuilderAvailability';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 const Projects = () => {
   const { user } = useAuth();
@@ -15,7 +18,15 @@ const Projects = () => {
   const [success, setSuccess] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [newStartDate, setNewStartDate] = useState(null);
-  const [newEndDate, setNewEndDate] = useState(null);
+  const [newEndDate, setNewEndDate] = useState(null); // Fixed: Correct state setter
+  const [activeSection, setActiveSection] = useState('manageProjects');
+
+  useEffect(() => {
+    if (!user || user.user_type !== 'builder') {
+      navigate('/login');
+      return;
+    }
+  }, [user, navigate]);
 
   const updateProject = async (projectId) => {
     try {
@@ -25,7 +36,7 @@ const Projects = () => {
       }
       const updatedProjects = projects.map((proj) =>
         proj.id === projectId
-          ? { ...proj, scheduled_datetime: newStartDate, end_datetime: newEndDate }
+          ? { ...proj, scheduled_datetime: newStartDate.toISOString(), end_datetime: newEndDate.toISOString() }
           : proj
       );
       setProjects(updatedProjects);
@@ -55,99 +66,108 @@ const Projects = () => {
     }
   };
 
-  return (
-    <div className="p-4">
-      <Header />
-      <Box className="mt-4">
-        <Typography variant="h4">Manage Projects</Typography>
-        {error && <Alert severity="error" className="mt-2">{error}</Alert>}
-        {success && <Alert severity="success" className="mt-2">{success}</Alert>}
+  const sections = {
+    manageProjects: (
+      <div>
+        {error && <div className="bg-red-100 text-red-700 p-4 rounded mb-4">{error}</div>}
+        {success && <div className="bg-green-100 text-green-700 p-4 rounded mb-4">{success}</div>}
         {loading ? (
-          <CircularProgress />
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary-blue mx-auto"></div>
         ) : (
           <div>
-            <Button
-              variant="contained"
-              onClick={() => navigate('/builder-availability')}
-              className="mt-2"
-            >
-              Set Builder Availability
-            </Button>
             {projects.length === 0 ? (
-              <Typography className="mt-2">No projects found.</Typography>
+              <p className="text-text-gray">No projects found.</p>
             ) : (
               projects.map((project) => (
-                <Box key={`project-${project.id}`} className="mt-2 p-4 bg-white rounded-lg shadow-md">
-                  <Typography variant="h6">Builder: {project.builder}</Typography>
-                  <Typography variant="h6">Client: {project.client}</Typography>
-                  <Typography>
-                    Start Date: {new Date(project.scheduled_datetime).toLocaleString()}
-                  </Typography>
-                  <Typography>
-                    End Date: {new Date(project.end_datetime).toLocaleString()}
-                  </Typography>
-                  <Typography>Status: {project.status}</Typography>
+                <div key={`project-${project.id}`} className="mb-4 p-6 bg-white rounded-lg shadow-md">
+                  <h3 className="text-lg font-semibold text-primary-blue">Builder: {project.builder}</h3>
+                  <p className="text-text-gray">Client: {project.client}</p>
+                  <p className="text-text-gray">
+                    Start Date: {project.scheduled_datetime ? new Date(project.scheduled_datetime).toLocaleString() : 'N/A'}
+                  </p>
+                  <p className="text-text-gray">
+                    End Date: {project.end_datetime ? new Date(project.end_datetime).toLocaleString() : 'N/A'}
+                  </p>
+                  <p className="text-text-gray">Status: {project.status || 'N/A'}</p>
                   {editProject === project.id ? (
-                    <Box className="mt-2">
-                      <DateTimePicker
-                        label="Update Start Date"
-                        value={newStartDate}
-                        onChange={(newValue) => setNewStartDate(newValue)}
-                        className="mb-2 w-full"
-                      />
-                      <DateTimePicker
-                        label="Update End Date"
-                        value={newEndDate}
-                        onChange={(newValue) => setNewEndDate(newValue)}
-                        className="mb-2 w-full"
-                      />
-                      <Button
-                        variant="contained"
-                        onClick={() => updateProject(project.id)}
-                        className="mr-2"
-                        disabled={!newStartDate || !newEndDate}
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        onClick={() => {
-                          setEditProject(null);
-                          setNewStartDate(null);
-                          setNewEndDate(null);
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </Box>
+                    <div className="mt-4">
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          label="Update Start Date"
+                          value={newStartDate ? dayjs(newStartDate) : null}
+                          onChange={(newValue) => setNewStartDate(newValue ? newValue.toDate() : null)}
+                          className="mb-4 w-full"
+                          slotProps={{ textField: { variant: 'outlined' } }}
+                        />
+                        <DateTimePicker
+                          label="Update End Date"
+                          value={newEndDate ? dayjs(newEndDate) : null}
+                          onChange={(newValue) => setNewEndDate(newValue ? newValue.toDate() : null)}
+                          className="mb-4 w-full"
+                          slotProps={{ textField: { variant: 'outlined' } }}
+                        />
+                      </LocalizationProvider>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => updateProject(project.id)}
+                          className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-800"
+                          disabled={!newStartDate || !newEndDate}
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditProject(null);
+                            setNewStartDate(null);
+                            setNewEndDate(null);
+                          }}
+                          className="bg-gray-300 text-text-gray px-4 py-2 rounded hover:bg-gray-400"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
                   ) : (
-                    <Box className="mt-2">
-                      <Button
-                        variant="outlined"
+                    <div className="mt-4 flex space-x-2">
+                      <button
                         onClick={() => {
                           setEditProject(project.id);
-                          setNewStartDate(new Date(project.scheduled_datetime));
-                          setNewEndDate(new Date(project.end_datetime));
+                          setNewStartDate(project.scheduled_datetime ? new Date(project.scheduled_datetime) : null);
+                          setNewEndDate(project.end_datetime ? new Date(project.end_datetime) : null);
                         }}
-                        className="mr-2"
+                        className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-800"
                       >
                         Edit
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
+                      </button>
+                      <button
                         onClick={() => deleteProject(project.id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                       >
                         Delete
-                      </Button>
-                    </Box>
+                      </button>
+                    </div>
                   )}
-                </Box>
+                </div>
               ))
             )}
           </div>
         )}
-      </Box>
+      </div>
+    ),
+    setAvailability: <BuilderAvailability />,
+  };
+
+  return (
+    <div className="flex">
+      <div className="md:ml-64 flex-1 p-6">
+        <Header userType="builder" activeSection={activeSection} setActiveSection={setActiveSection} />
+        <div className="mt-6">
+          <h1 className="text-3xl font-bold text-primary-blue mb-6">Builder Dashboard</h1>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            {sections[activeSection]}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -46,7 +46,7 @@ const ActionProvider = ({ createChatBotMessage, setState, children }) => {
 };
 
 const ConstructionChatbot = () => (
-  <div className="fixed bottom-4 right-4">
+  <div className="fixed bottom-4 right-4 z-50">
     <Chatbot config={config} messageParser={MessageParser} actionProvider={ActionProvider} />
   </div>
 );

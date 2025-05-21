@@ -8,8 +8,9 @@ import ProjectList from './pages/ProjectList';
 import Projects from './pages/Projects';
 import Materials from './pages/Materials';
 import AdminDashboard from './pages/AdminDashboard';
+import ProfileEdit from './pages/ProfileEdit';
 import ConstructionChatbot from './components/ConstructionChatbot';
-import ErrorBoundary from './components/ErrorBoundary'; // Added
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/materials" element={<Materials />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/profile" element={<ProfileEdit />} />
           </Routes>
         </AuthProvider>
       </Router>

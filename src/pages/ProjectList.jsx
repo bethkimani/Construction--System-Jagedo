@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Typography, Box, Alert, CircularProgress, LinearProgress, Button } from '@mui/material'; // Added Button
 import Header from '../components/Header';
 import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
 import ProjectsSection from '../components/ProjectsSection';
@@ -19,6 +18,7 @@ const ProjectList = () => {
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeSection, setActiveSection] = useState('projectRequirementChecker');
 
   useEffect(() => {
     if (!user) {
@@ -42,9 +42,7 @@ const ProjectList = () => {
 
   const calculateProgress = (projects) => {
     if (projects.length === 0) return 0;
-    const totalProgress = projects.reduce((sum, project) => {
-      return sum + parseInt(project.progress) || 0;
-    }, 0);
+    const totalProgress = projects.reduce((sum, project) => sum + (parseInt(project.progress) || 0), 0);
     return totalProgress / projects.length;
   };
 
@@ -84,14 +82,7 @@ const ProjectList = () => {
   const sections = {
     projectRequirementChecker: <ProjectRequirementChecker onBuilderAssign={handleBuilderAssign} />,
     projects: <ProjectsSection projects={projects} builders={dummyBuilders} />,
-    availableBuilders: (
-      <AvailableBuilders
-        builders={dummyBuilders}
-        onAssignProject={bookProject}
-        projects={projects}
-        setProjects={setProjects}
-      />
-    ),
+    availableBuilders: <AvailableBuilders builders={dummyBuilders} onAssignProject={bookProject} projects={projects} setProjects={setProjects} />,
     escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
     projectLogs: <ProjectLogs />,
     faqs: <FAQs />,
@@ -100,39 +91,39 @@ const ProjectList = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <CircularProgress />
+      <div className="flex items-center justify-center min-h-screen bg-cream-bg">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-dark-purple"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <Alert severity="error">{error}</Alert>
+      <div className="p-6 bg-cream-bg">
+        <div className="bg-red-100 text-red-700 p-4 rounded">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <Header />
-      <Typography variant="h4" className="mb-6 text-gray-800">
-        Project Dashboard
-      </Typography>
-      <Box className="mb-6">
-        <Typography variant="h6">Project Progress Tracker</Typography>
-        <LinearProgress variant="determinate" value={progress} className="mt-2" />
-        <Typography>{progress}% Complete</Typography>
-      </Box>
-      {Object.keys(sections).map((sectionKey) => (
-        <Box key={sectionKey} className="mb-8">
-          {sections[sectionKey]}
-        </Box>
-      ))}
-      <Button variant="contained" color="secondary" onClick={logout} className="mt-6">
-        Logout
-      </Button>
+    <div className="min-h-screen bg-cream-bg">
+      <Header userType="client" activeSection={activeSection} setActiveSection={setActiveSection} />
+      <div className="p-6 md:ml-64">
+        <h1 className="text-3xl font-bold text-dark-purple mb-6">Project Dashboard</h1>
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-dark-purple">Project Progress Tracker</h2>
+          <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
+            <div
+              className="bg-dark-purple h-4 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <p className="text-dark-purple mt-1">{progress.toFixed(1)}% Complete</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          {sections[activeSection] || <p className="text-dark-purple">Select a section to view details.</p>}
+        </div>
+      </div>
     </div>
   );
 };
