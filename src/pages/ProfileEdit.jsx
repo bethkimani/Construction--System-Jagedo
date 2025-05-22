@@ -63,10 +63,10 @@ const ProfileEdit = () => {
   };
 
   return (
-    <div className="flex">
-      <div className="md:ml-64 flex-1 p-6">
-        <Header userType={user?.user_type} activeSection={activeSection} setActiveSection={setActiveSection} />
-        <div className="mt-6 max-w-md mx-auto">
+    <div className="min-h-screen bg-cream-bg">
+      <Header userType={user?.user_type} activeSection={activeSection} setActiveSection={setActiveSection} />
+      <div className="md:ml-64">
+        <div className="max-w-md mx-auto p-6">
           <h1 className="text-3xl font-bold text-primary-blue mb-6">Edit User Profile</h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -85,7 +85,7 @@ const ProfileEdit = () => {
                 type="text"
                 value={formData.last_name}
                 onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                className="w-full p-2 border border-light-gray rounded focus Outline-none focus:ring-2 focus:ring-primary-blue"
+                className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue"
                 required
               />
             </div>

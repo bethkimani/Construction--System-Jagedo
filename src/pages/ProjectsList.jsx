@@ -1,24 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Typography, Box, LinearProgress, Button } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Header from '../components/Header';
-import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
-import ProjectsSection from '../components/ProjectsSection';
-import AvailableBuilders from '../components/AvailableBuilders';
-import EscrowManagement from '../components/EscrowManagement';
-import ProjectLogs from '../components/ProjectLogs';
-import FAQs from '../components/FAQs';
-import MaterialSupply from '../components/MaterialSupply';
 import { dummyProjects, dummyBuilders } from '../data/dummyData';
 
 const ProjectList = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
-  const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeSection, setActiveSection] = useState('projectRequirementChecker');
@@ -40,16 +31,9 @@ const ProjectList = () => {
     }
     setTimeout(() => {
       setProjects(dummyProjects);
-      setProgress(calculateProgress(dummyProjects));
       setLoading(false);
     }, 1000);
   }, [user, navigate]);
-
-  const calculateProgress = (projects) => {
-    if (projects.length === 0) return 0;
-    const totalProgress = projects.reduce((sum, project) => sum + (parseInt(project.progress) || 0), 0);
-    return totalProgress / projects.length;
-  };
 
   const handleBuilderAssign = (builder) => {
     setProjects((prev) => {
@@ -86,37 +70,6 @@ const ProjectList = () => {
     });
   };
 
-  const sections = {
-    projectRequirementChecker: <ProjectRequirementChecker onBuilderAssign={handleBuilderAssign} />,
-    projects: (
-      <ProjectsSection
-        projects={projects}
-        builders={dummyBuilders}
-        onAssignProject={bookProject}
-        selectedSlots={selectedSlots}
-        setSelectedSlots={setSelectedSlots}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-      />
-    ),
-    availableBuilders: (
-      <AvailableBuilders
-        builders={dummyBuilders}
-        onAssignProject={bookProject}
-        selectedSlots={selectedSlots}
-        setSelectedSlots={setSelectedSlots}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        projects={projects}
-        setProjects={setProjects}
-      />
-    ),
-    escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
-    projectLogs: <ProjectLogs />,
-    faqs: <FAQs />,
-    materialSupply: <MaterialSupply onOrderMaterial={handleOrderMaterial} />,
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-cream-bg">
@@ -136,19 +89,19 @@ const ProjectList = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className="min-h-screen bg-cream-bg">
-        <Header userType="client" activeSection={activeSection} setActiveSection={setActiveSection} />
-        <div className="p-6 md:ml-64">
-          <Typography variant="h4" className="mb-6 text-gray-800">Project Dashboard</Typography>
-          <Box className="mb-6">
-            <Typography variant="h6">Project Progress Tracker</Typography>
-            <LinearProgress variant="determinate" value={progress} className="mt-2" />
-            <Typography>{progress.toFixed(1)}% Complete</Typography>
-          </Box>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            {sections[activeSection] || <p className="text-dark-purple">Select a section to view details.</p>}
-          </div>
-          <Button variant="contained" color="secondary" onClick={logout} className="mt-6">Logout</Button>
-        </div>
+        <Header
+          userType="client"
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          onBuilderAssign={handleBuilderAssign}
+          onOrderMaterial={handleOrderMaterial}
+          projects={projects}
+          setProjects={setProjects}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedSlots={selectedSlots}
+          setSelectedSlots={setSelectedSlots}
+        />
       </div>
     </LocalizationProvider>
   );
