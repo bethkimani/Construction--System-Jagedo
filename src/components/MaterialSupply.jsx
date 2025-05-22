@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Typography, TextField, Button, Alert } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 
 const MaterialSupply = ({ onOrderMaterial }) => {
@@ -21,7 +22,7 @@ const MaterialSupply = ({ onOrderMaterial }) => {
         id: materials.length + 1,
         name: newMaterial.name,
         price: parseFloat(newMaterial.price),
-        supplier: user.storeName || 'Unknown Supplier',
+        supplier: user?.storeName || 'Unknown Supplier',
       },
     ]);
     setNewMaterial({ name: '', price: '' });
@@ -34,10 +35,24 @@ const MaterialSupply = ({ onOrderMaterial }) => {
     }
   };
 
+  // If user is not loaded, show a loading state or redirect
+  if (!user) {
+    return (
+      <div className="space-y-4">
+        <Typography variant="h5" className="text-gray-800 font-semibold">
+          Material Supply
+        </Typography>
+        <Typography>Loading user data...</Typography>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold text-primary-blue">Material Supply</h2>
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <Typography variant="h5" className="text-gray-800 font-semibold">
+        Material Supply
+      </Typography>
+      <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
         {user.user_type === 'hardware' ? (
           <>
             <h3 className="text-lg font-medium text-text-gray mb-4">Add New Material</h3>

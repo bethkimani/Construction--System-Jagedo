@@ -4,7 +4,6 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 
 const AvailableBuilders = ({ builders, onAssignProject, selectedSlots, setSelectedSlots, searchTerm, setSearchTerm }) => {
   const filteredBuilders = builders.filter((builder) => {
-    // Safeguard against undefined properties
     const specialization = builder.specialization || '';
     const firstName = builder.first_name || '';
     return (

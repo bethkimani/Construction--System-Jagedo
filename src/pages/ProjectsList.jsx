@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Typography, Box, LinearProgress, Button } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Header from '../components/Header';
 import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
 import ProjectsSection from '../components/ProjectsSection';
@@ -19,6 +22,8 @@ const ProjectList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeSection, setActiveSection] = useState('projectRequirementChecker');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSlots, setSelectedSlots] = useState({});
 
   useEffect(() => {
     if (!user) {
@@ -56,13 +61,15 @@ const ProjectList = () => {
     });
   };
 
-  const bookProject = (builder, projectDetails) => {
+  const bookProject = (builderId) => {
+    const builder = dummyBuilders.find((b) => b.id === builderId);
+    if (!builder) return;
     const newProject = {
       id: projects.length + 1,
       client: user.email,
       builder: `${builder.first_name} ${builder.last_name}`,
       date: new Date().toISOString().split('T')[0],
-      requirements: projectDetails.requirements,
+      requirements: 'New Project',
       progress: '0%',
       notes: 'Project initiated',
     };
@@ -81,8 +88,29 @@ const ProjectList = () => {
 
   const sections = {
     projectRequirementChecker: <ProjectRequirementChecker onBuilderAssign={handleBuilderAssign} />,
-    projects: <ProjectsSection projects={projects} builders={dummyBuilders} />,
-    availableBuilders: <AvailableBuilders builders={dummyBuilders} onAssignProject={bookProject} projects={projects} setProjects={setProjects} />,
+    projects: (
+      <ProjectsSection
+        projects={projects}
+        builders={dummyBuilders}
+        onAssignProject={bookProject}
+        selectedSlots={selectedSlots}
+        setSelectedSlots={setSelectedSlots}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
+    ),
+    availableBuilders: (
+      <AvailableBuilders
+        builders={dummyBuilders}
+        onAssignProject={bookProject}
+        selectedSlots={selectedSlots}
+        setSelectedSlots={setSelectedSlots}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        projects={projects}
+        setProjects={setProjects}
+      />
+    ),
     escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
     projectLogs: <ProjectLogs />,
     faqs: <FAQs />,
@@ -106,25 +134,23 @@ const ProjectList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cream-bg">
-      <Header userType="client" activeSection={activeSection} setActiveSection={setActiveSection} />
-      <div className="p-6 md:ml-64">
-        <h1 className="text-3xl font-bold text-dark-purple mb-6">Project Dashboard</h1>
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-dark-purple">Project Progress Tracker</h2>
-          <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
-            <div
-              className="bg-dark-purple h-4 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            ></div>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <div className="min-h-screen bg-cream-bg">
+        <Header userType="client" activeSection={activeSection} setActiveSection={setActiveSection} />
+        <div className="p-6 md:ml-64">
+          <Typography variant="h4" className="mb-6 text-gray-800">Project Dashboard</Typography>
+          <Box className="mb-6">
+            <Typography variant="h6">Project Progress Tracker</Typography>
+            <LinearProgress variant="determinate" value={progress} className="mt-2" />
+            <Typography>{progress.toFixed(1)}% Complete</Typography>
+          </Box>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            {sections[activeSection] || <p className="text-dark-purple">Select a section to view details.</p>}
           </div>
-          <p className="text-dark-purple mt-1">{progress.toFixed(1)}% Complete</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          {sections[activeSection] || <p className="text-dark-purple">Select a section to view details.</p>}
+          <Button variant="contained" color="secondary" onClick={logout} className="mt-6">Logout</Button>
         </div>
       </div>
-    </div>
+    </LocalizationProvider>
   );
 };
 

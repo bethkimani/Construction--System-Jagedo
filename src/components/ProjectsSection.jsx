@@ -1,120 +1,158 @@
-import React, { useState } from 'react';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Typography, Box, Alert, CircularProgress, LinearProgress, Button } from '@mui/material';
+import Header from '../components/Header';
+import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
+import ProjectsSection from '../components/ProjectsSection'; // Corrected file name
+import AvailableBuilders from '../components/AvailableBuilders';
+import EscrowManagement from '../components/EscrowManagement';
+import ProjectLogs from '../components/ProjectLogs';
+import FAQs from '../components/FAQs';
+import MaterialSupply from '../components/MaterialSupply';
+import { dummyProjects, dummyBuilders } from '../data/dummyData';
 
-const ProjectsSection = ({ builders, onAssignProject, projects, setProjects }) => {
-  const [availability, setAvailability] = useState({ start_datetime: null, end_datetime: null });
-  const [projectDetails, setProjectDetails] = useState({ requirements: '' });
+const ProjectList = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSlots, setSelectedSlots] = useState({});
 
-  const buildersWithVerification = builders.map((builder) => ({
-    ...builder,
-    verified: builder.id === 1,
-  }));
-
-  const handleAssignProject = (builder) => {
-    if (!availability.start_datetime || !availability.end_datetime || !projectDetails.requirements) {
-      setError('Please fill in all fields');
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
       return;
     }
-    if (!builder.verified) {
-      setError('This builder is not verified by the admin.');
+    if (user.user_type === 'builder') {
+      navigate('/projects');
       return;
     }
+    if (user.user_type === 'hardware') {
+      navigate('/materials');
+      return;
+    }
+    setTimeout(() => {
+      setProjects(dummyProjects);
+      setProgress(calculateProgress(dummyProjects));
+      setLoading(false);
+    }, 1000);
+  }, [user, navigate]);
+
+  const calculateProgress = (projects) => {
+    if (projects.length === 0) return 0;
+    const totalProgress = projects.reduce((sum, project) => {
+      return sum + parseInt(project.progress) || 0;
+    }, 0);
+    return totalProgress / projects.length;
+  };
+
+  const handleBuilderAssign = (builder) => {
+    setProjects((prev) => {
+      const newProjects = [...prev];
+      if (newProjects.length > 0) {
+        newProjects[newProjects.length - 1].builder = `${builder.first_name} ${builder.last_name}`;
+      }
+      return newProjects;
+    });
+  };
+
+  const bookProject = (builderId) => {
+    const builder = dummyBuilders.find((b) => b.id === builderId);
+    if (!builder) return;
     const newProject = {
       id: projects.length + 1,
-      client: 'Current Client',
+      client: user.email,
       builder: `${builder.first_name} ${builder.last_name}`,
-      date: availability.start_datetime.toISOString().split('T')[0],
-      requirements: projectDetails.requirements,
+      date: new Date().toISOString().split('T')[0],
+      requirements: 'New Project',
       progress: '0%',
       notes: 'Project initiated',
     };
-    onAssignProject(builder, projectDetails);
-    setProjects([...projects, newProject]);
-    setAvailability({ start_datetime: null, end_datetime: null });
-    setProjectDetails({ requirements: '' });
-    setError('');
+    setProjects((prev) => [...prev, newProject]);
   };
 
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-dark-purple">Projects</h2>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        {projects.length === 0 ? (
-          <p className="text-dark-purple">No projects available.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => (
-              <div
-                key={`project-${project.id}`}
-                className="p-4 bg-cream-bg rounded-lg border border-gray-200 hover:shadow-lg transition-shadow"
-              >
-                <h3 className="text-lg font-semibold text-dark-purple">Builder: {project.builder}</h3>
-                <p className="text-dark-purple">Client: {project.client}</p>
-                <p className="text-dark-purple">Date: {project.date}</p>
-                <p className="text-dark-purple">Requirements: {project.requirements}</p>
-                <p className="text-dark-purple">Progress: {project.progress}</p>
-                <p className="text-dark-purple">Notes: {project.notes}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+  const handleOrderMaterial = (material) => {
+    setProjects((prev) => {
+      const updatedProjects = [...prev];
+      if (updatedProjects.length > 0) {
+        updatedProjects[updatedProjects.length - 1].notes += ` | Ordered ${material.name} from ${material.supplier} for ${material.price} KES (Material Source: Eco-Friendly)`;
+      }
+      return updatedProjects;
+    });
+  };
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-medium text-dark-purple mb-4">Book a Builder</h3>
-        {error && <div className="bg-red-100 text-red-700 p-4 rounded mb-4">{error}</div>}
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <DateTimePicker
-              label="Start Time"
-              value={availability.start_datetime ? dayjs(availability.start_datetime) : null}
-              onChange={(newValue) =>
-                setAvailability({ ...availability, start_datetime: newValue ? newValue.toDate() : null })
-              }
-              slotProps={{ textField: { variant: 'outlined', fullWidth: true, className: 'rounded-lg border-gray-300' } }}
-            />
-            <DateTimePicker
-              label="End Time"
-              value={availability.end_datetime ? dayjs(availability.end_datetime) : null}
-              onChange={(newValue) =>
-                setAvailability({ ...availability, end_datetime: newValue ? newValue.toDate() : null })
-              }
-              slotProps={{ textField: { variant: 'outlined', fullWidth: true, className: 'rounded-lg border-gray-300' } }}
-            />
-          </div>
-        </LocalizationProvider>
-        <input
-          type="text"
-          placeholder="Project Requirements"
-          value={projectDetails.requirements}
-          onChange={(e) => setProjectDetails({ ...projectDetails, requirements: e.target.value })}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dark-purple mb-4"
-        />
-        <div className="space-y-4">
-          {buildersWithVerification.map((builder) => (
-            <div key={`builder-${builder.id}`} className="p-4 bg-cream-bg rounded-lg border border-gray-200">
-              <div className="flex items-center gap-2">
-                <p className="text-dark-purple font-medium">{builder.first_name} {builder.last_name}</p>
-                {builder.verified && <span className="text-green-500 text-sm">✔ Verified</span>}
-              </div>
-              <p className="text-dark-purple">Specialization: {builder.specialization || 'N/A'}</p>
-              <p className="text-dark-purple">Company: {builder.company || 'N/A'}</p>
-              <button
-                onClick={() => handleAssignProject(builder)}
-                className="mt-2 w-full bg-dark-purple text-white p-2 rounded-lg hover:bg-opacity-90 transition"
-              >
-                Assign Project
-              </button>
-            </div>
-          ))}
-        </div>
+  const sections = {
+    projectRequirementChecker: <ProjectRequirementChecker onBuilderAssign={handleBuilderAssign} />,
+    projects: <ProjectsSection
+      projects={projects}
+      builders={dummyBuilders}
+      onAssignProject={bookProject}
+      selectedSlots={selectedSlots}
+      setSelectedSlots={setSelectedSlots}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+    />,
+    availableBuilders: (
+      <AvailableBuilders
+        builders={dummyBuilders}
+        onAssignProject={bookProject}
+        selectedSlots={selectedSlots}
+        setSelectedSlots={setSelectedSlots}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        projects={projects}
+        setProjects={setProjects}
+      />
+    ),
+    escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
+    projectLogs: <ProjectLogs />,
+    faqs: <FAQs />,
+    materialSupply: <MaterialSupply onOrderMaterial={handleOrderMaterial} />,
+  };
+
+  console.log('ProjectList rendering sections:', sections);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <CircularProgress />
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert severity="error">{error}</Alert>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <Header />
+      <Typography variant="h4" className="mb-6 text-gray-800">
+        Project Dashboard
+      </Typography>
+      <Box className="mb-6">
+        <Typography variant="h6">Project Progress Tracker</Typography>
+        <LinearProgress variant="determinate" value={progress} className="mt-2" />
+        <Typography>{progress}% Complete</Typography>
+      </Box>
+      {Object.keys(sections).map((sectionKey) => (
+        <Box key={sectionKey} className="mb-8">
+          {sections[sectionKey]}
+        </Box>
+      ))}
+      <Button variant="contained" color="secondary" onClick={logout} className="mt-6">
+        Logout
+      </Button>
     </div>
   );
 };
 
-export default ProjectsSection;
+export default ProjectList;

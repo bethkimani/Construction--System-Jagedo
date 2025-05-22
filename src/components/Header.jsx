@@ -34,7 +34,7 @@ const Header = ({ userType, activeSection, setActiveSection }) => {
   return (
     <div className="min-h-screen flex flex-col bg-cream-bg">
       {/* Top Navbar */}
-      <nav className="bg-white p-4 flex justify-end items-center shadow-md border-b border-gray-200">
+      <nav className="bg-white p-6 flex justify-end items-center shadow-md border-b border-gray-200 mt-4">
         <div className="flex items-center space-x-4">
           <Link to="/profile" className="text-text-dark hover:text-dark-purple transition">Profile</Link>
           <button
@@ -49,9 +49,7 @@ const Header = ({ userType, activeSection, setActiveSection }) => {
       {/* Sidebar */}
       <div className="flex">
         <div
-          className={`w-64 bg-dark-purple text-white h-screen p-6 shadow-lg fixed z-10 ${
-            isSidebarOpen ? 'block' : 'hidden md:block'
-          }`}
+          className={`w-64 bg-dark-purple text-white h-screen p-6 shadow-lg fixed z-10 left-0 ${isSidebarOpen ? 'block' : 'hidden md:block'}`}
           style={{ boxShadow: '2px 0 10px rgba(0, 0, 0, 0.5)' }}
         >
           <h2 className="text-2xl font-semibold mb-6 text-center">Dashboard</h2>
@@ -99,7 +97,7 @@ const Header = ({ userType, activeSection, setActiveSection }) => {
         </button>
 
         {/* Main Content */}
-        <div className="flex-1 p-6 md:ml-64">
+        <div className="flex-1 p-6">
           <main>{/* Content will be injected here by parent component */}</main>
         </div>
       </div>
