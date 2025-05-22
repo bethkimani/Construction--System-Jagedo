@@ -32,6 +32,12 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
     hardware: [
       { name: 'Manage Materials', key: 'manageMaterials', icon: '🛠️' },
     ],
+    fundi: [
+      { name: 'Manage Projects', key: 'manageProjects', icon: '🏗️' },
+    ],
+    contractor: [
+      { name: 'Manage Projects', key: 'manageProjects', icon: '🏗️' },
+    ],
   };
 
   const bookProject = (builderId) => {
@@ -91,7 +97,13 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
   return (
     <div className="min-h-screen flex flex-col bg-cream-bg">
       {/* Top Navbar */}
-      <nav className="bg-white p-6 flex justify-end items-center shadow-md border-b border-gray-200">
+      <nav className="bg-white p-6 flex justify-between items-center shadow-md border-b border-gray-200">
+        <div className="flex items-center space-x-4">
+          <span className="text-text-dark">
+            Welcome, {user?.first_name} {user?.last_name} ({user?.user_type}) 
+            {user?.location ? ` - Location: ${user.location}` : ''}
+          </span>
+        </div>
         <div className="flex items-center space-x-4">
           <Link to="/profile" className="text-text-dark hover:text-dark-purple transition">Profile</Link>
           <button

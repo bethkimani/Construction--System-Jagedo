@@ -6,7 +6,6 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Initialize user from localStorage if available
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
@@ -14,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const signup = (email, password, user_type, additionalInfo) => {
-    if (!['client', 'builder', 'hardware', 'admin'].includes(user_type)) {
+    if (!['client', 'builder', 'hardware', 'admin', 'fundi', 'contractor'].includes(user_type)) {
       setError('Invalid user type');
       return Promise.reject(new Error('Invalid user type'));
     }
@@ -49,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
       user_type,
-      ...additionalInfo, // This will include first_name, last_name, location, and other fields
+      ...additionalInfo,
     };
 
     dummyUsers.push(newUser);
@@ -65,6 +64,13 @@ export const AuthProvider = ({ children }) => {
     if (storedUser && storedUser.email === email && storedUser.password === password) {
       setUser(storedUser);
       console.log('Logged in from localStorage:', storedUser);
+      console.log('User Details:', {
+        email: storedUser.email,
+        user_type: storedUser.user_type,
+        first_name: storedUser.first_name,
+        last_name: storedUser.last_name,
+        location: storedUser.location || 'Not specified',
+      });
       setError('');
       redirectUser(storedUser.user_type);
       return Promise.resolve();
@@ -76,6 +82,13 @@ export const AuthProvider = ({ children }) => {
     if (dummyUser) {
       setUser(dummyUser);
       console.log('Logged in from dummyUsers:', dummyUser);
+      console.log('User Details:', {
+        email: dummyUser.email,
+        user_type: dummyUser.user_type,
+        first_name: dummyUser.first_name,
+        last_name: dummyUser.last_name,
+        location: dummyUser.location || 'Not specified',
+      });
       localStorage.setItem('user', JSON.stringify(dummyUser));
       setError('');
       redirectUser(dummyUser.user_type);
@@ -102,6 +115,10 @@ export const AuthProvider = ({ children }) => {
       navigate('/materials');
     } else if (userType === 'admin') {
       navigate('/admin');
+    } else if (userType === 'fundi') {
+      navigate('/fundi-dashboard'); // Placeholder route
+    } else if (userType === 'contractor') {
+      navigate('/contractor-dashboard'); // Placeholder route
     } else {
       navigate('/login');
     }
