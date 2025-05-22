@@ -12,20 +12,23 @@ import dayjs from 'dayjs';
 const Projects = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [projects, setProjects] = useState(dummyProjects);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [newStartDate, setNewStartDate] = useState(null);
-  const [newEndDate, setNewEndDate] = useState(null); // Fixed: Correct state setter
-  const [activeSection, setActiveSection] = useState('manageProjects');
+  const [newEndDate, setNewEndDate] = useState(null);
+  const [activeSection, setActiveSection] = useState('projects');
 
   useEffect(() => {
     if (!user || user.user_type !== 'builder') {
       navigate('/login');
       return;
     }
+    // Filter projects for the current builder
+    const builderProjects = dummyProjects.filter((proj) => proj.builder === `${user.first_name} ${user.last_name}`);
+    setProjects(builderProjects);
   }, [user, navigate]);
 
   const updateProject = async (projectId) => {
@@ -67,7 +70,7 @@ const Projects = () => {
   };
 
   const sections = {
-    manageProjects: (
+    projects: (
       <div>
         {error && <div className="bg-red-100 text-red-700 p-4 rounded mb-4">{error}</div>}
         {success && <div className="bg-green-100 text-green-700 p-4 rounded mb-4">{success}</div>}
@@ -76,12 +79,13 @@ const Projects = () => {
         ) : (
           <div>
             {projects.length === 0 ? (
-              <p className="text-text-gray">No projects found.</p>
+              <p className="text-text-gray">No projects assigned to you yet.</p>
             ) : (
               projects.map((project) => (
                 <div key={`project-${project.id}`} className="mb-4 p-6 bg-white rounded-lg shadow-md">
                   <h3 className="text-lg font-semibold text-primary-blue">Builder: {project.builder}</h3>
                   <p className="text-text-gray">Client: {project.client}</p>
+                  <p className="text-text-gray">Requirements: {project.requirements}</p>
                   <p className="text-text-gray">
                     Start Date: {project.scheduled_datetime ? new Date(project.scheduled_datetime).toLocaleString() : 'N/A'}
                   </p>

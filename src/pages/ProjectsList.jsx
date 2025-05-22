@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Header from '../components/Header';
+import EscrowManagement from '../components/EscrowManagement';
 import { dummyProjects, dummyBuilders } from '../data/dummyData';
 
 const ProjectList = () => {
@@ -12,7 +11,7 @@ const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeSection, setActiveSection] = useState('projectRequirementChecker');
+  const [activeSection, setActiveSection] = useState('escrowManagement'); // Default to escrow for payment
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSlots, setSelectedSlots] = useState({});
 
@@ -70,6 +69,10 @@ const ProjectList = () => {
     });
   };
 
+  const updateProgress = (projectId, newProgress) => {
+    setProjects(projects.map(p => p.id === projectId ? { ...p, progress: newProgress } : p));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-cream-bg">
@@ -87,23 +90,42 @@ const ProjectList = () => {
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <div className="min-h-screen bg-cream-bg">
-        <Header
-          userType="client"
-          activeSection={activeSection}
-          setActiveSection={setActiveSection}
-          onBuilderAssign={handleBuilderAssign}
-          onOrderMaterial={handleOrderMaterial}
-          projects={projects}
-          setProjects={setProjects}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedSlots={selectedSlots}
-          setSelectedSlots={setSelectedSlots}
-        />
+    <div className="min-h-screen bg-cream-bg">
+      <Header
+        userType="client"
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        onBuilderAssign={handleBuilderAssign}
+        onOrderMaterial={handleOrderMaterial}
+        projects={projects}
+        setProjects={setProjects}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        selectedSlots={selectedSlots}
+        setSelectedSlots={setSelectedSlots}
+        user={user}
+      />
+      <div className="md:ml-64 flex-1 p-6">
+        <h2 className="text-2xl font-semibold text-primary-blue mb-4">Projects</h2>
+        {projects.map((project) => (
+          <div key={`project-${project.id}`} className="mb-4 p-6 bg-white rounded-lg shadow-md">
+            <p className="text-text-gray">Client: {project.client}</p>
+            <p className="text-text-gray">Builder: {project.builder}</p>
+            <p className="text-text-gray">Requirements: {project.requirements}</p>
+            <p className="text-text-gray">Progress: {project.progress}</p>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={parseInt(project.progress) || 0}
+              onChange={(e) => updateProgress(project.id, `${e.target.value}%`)}
+              className="w-full mt-2"
+            />
+            {activeSection === 'escrowManagement' && <EscrowManagement projects={projects} builders={dummyBuilders} user={user} />}
+          </div>
+        ))}
       </div>
-    </LocalizationProvider>
+    </div>
   );
 };
 

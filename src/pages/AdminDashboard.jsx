@@ -5,7 +5,14 @@ import { dummyBuilders } from '../data/dummyData';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const [builders, setBuilders] = useState(dummyBuilders.map(builder => ({ ...builder, verified: false })));
+  const [builders, setBuilders] = useState(
+    dummyBuilders.map(builder => ({
+      ...builder,
+      verified: false,
+      safetyCertified: false,
+      sustainabilityTrained: false,
+    }))
+  );
   const [error, setError] = useState('');
   const [activeSection, setActiveSection] = useState(null);
 
@@ -21,7 +28,9 @@ const AdminDashboard = () => {
 
   const handleVerifyBuilder = (builderId) => {
     setBuilders(builders.map(builder =>
-      builder.id === builderId ? { ...builder, verified: true } : builder
+      builder.id === builderId
+        ? { ...builder, verified: true, safetyCertified: true, sustainabilityTrained: true }
+        : builder
     ));
   };
 
@@ -41,13 +50,15 @@ const AdminDashboard = () => {
                 <p className="text-text-gray">Name: {builder.first_name} {builder.last_name}</p>
                 <p className="text-text-gray">Specialization: {builder.specialization}</p>
                 <p className="text-text-gray">Company: {builder.company}</p>
+                <p className="text-text-gray">Safety Certified: {builder.safetyCertified ? 'Yes' : 'No'}</p>
+                <p className="text-text-gray">Sustainability Trained: {builder.sustainabilityTrained ? 'Yes' : 'No'}</p>
                 <p className="text-text-gray">Status: {builder.verified ? 'Verified' : 'Not Verified'}</p>
                 {!builder.verified && (
                   <button
                     onClick={() => handleVerifyBuilder(builder.id)}
                     className="mt-2 bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-800"
                   >
-                    Verify Builder
+                    Verify Builder (Safety & Sustainability)
                   </button>
                 )}
               </div>

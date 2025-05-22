@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Added useState import
 import { dummyFAQs } from '../data/dummyData';
 
 const FAQs = () => {

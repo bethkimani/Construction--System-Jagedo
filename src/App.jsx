@@ -11,30 +11,46 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProfileEdit from './pages/ProfileEdit';
 import ConstructionChatbot from './components/ConstructionChatbot';
 import ErrorBoundary from './components/ErrorBoundary';
-import Homepage from './pages/Homepage'; // New homepage component
+import Homepage from './pages/Homepage';
+import Mentorship from './components/Mentorship';
+import ManageProjects from './components/ManageProjects';
+import ManageUsers from './components/ManageUsers';
+import { useAuth } from './context/AuthContext';
+import { dummyBuilders } from './data/dummyData';
 
 // Placeholder components
 const FundiDashboard = () => <div className="p-6">Fundi Dashboard (Under Construction)</div>;
 const ContractorDashboard = () => <div className="p-6">Contractor Dashboard (Under Construction)</div>;
+
+const AppContent = () => {
+  const { user } = useAuth();
+
+  return (
+    <div>
+      <ConstructionChatbot />
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/builders" element={<ProjectList />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/materials" element={<Materials />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/profile" element={<ProfileEdit />} />
+        <Route path="/fundi-dashboard" element={<FundiDashboard />} />
+        <Route path="/contractor-dashboard" element={<ContractorDashboard />} />
+        <Route path="/mentorship" element={<Mentorship builders={dummyBuilders} />} />
+      </Routes>
+    </div>
+  );
+};
 
 function App() {
   return (
     <ErrorBoundary>
       <Router>
         <AuthProvider>
-          <ConstructionChatbot />
-          <Routes>
-            <Route path="/" element={<Homepage />} /> {/* Updated to use new homepage */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/builders" element={<ProjectList />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/materials" element={<Materials />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/profile" element={<ProfileEdit />} />
-            <Route path="/fundi-dashboard" element={<FundiDashboard />} />
-            <Route path="/contractor-dashboard" element={<ContractorDashboard />} />
-          </Routes>
+          <AppContent />
         </AuthProvider>
       </Router>
     </ErrorBoundary>

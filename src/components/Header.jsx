@@ -2,23 +2,26 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
-import ProjectsSection from '../components/ProjectsSection';
+import PostProject from '../components/PostProject';
 import AvailableBuilders from '../components/AvailableBuilders';
 import EscrowManagement from '../components/EscrowManagement';
 import ProjectLogs from '../components/ProjectLogs';
 import FAQs from '../components/FAQs';
 import MaterialSupply from '../components/MaterialSupply';
-import { dummyProjects, dummyBuilders } from '../data/dummyData';
+import Mentorship from '../components/Mentorship';
+import ManageProjects from '../components/ManageProjects';
+import ManageUsers from '../components/ManageUsers';
+import { dummyProjects, dummyBuilders, dummyUsers } from '../data/dummyData';
 
-const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, onOrderMaterial, projects, setProjects, searchTerm, setSearchTerm, selectedSlots, setSelectedSlots }) => {
-  const { user, logout } = useAuth();
+const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, onOrderMaterial, projects, setProjects, searchTerm, setSearchTerm, selectedSlots, setSelectedSlots, user }) => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const sections = {
     client: [
       { name: 'Requirement Checker', key: 'projectRequirementChecker', icon: '📋' },
-      { name: 'Projects', key: 'projects', icon: '🏗️' },
+      { name: 'Post Project', key: 'postProject', icon: '📝' },
       { name: 'Available Builders', key: 'availableBuilders', icon: '👷' },
       { name: 'Escrow Management', key: 'escrowManagement', icon: '💰' },
       { name: 'Project Logs', key: 'projectLogs', icon: '📜' },
@@ -26,8 +29,9 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
       { name: 'Material Supply', key: 'materialSupply', icon: '🛠️' },
     ],
     builder: [
-      { name: 'Manage Projects', key: 'manageProjects', icon: '🏗️' },
+      { name: 'Projects', key: 'projects', icon: '🏗️' },
       { name: 'Set Availability', key: 'setAvailability', icon: '⏰' },
+      { name: 'Mentorship', key: 'mentorship', icon: '🤝' },
     ],
     hardware: [
       { name: 'Manage Materials', key: 'manageMaterials', icon: '🛠️' },
@@ -37,6 +41,11 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
     ],
     contractor: [
       { name: 'Manage Projects', key: 'manageProjects', icon: '🏗️' },
+    ],
+    admin: [
+      { name: 'Manage Builders', key: 'manageBuilders', icon: '👷' },
+      { name: 'Manage Projects', key: 'manageProjects', icon: '🏗️' },
+      { name: 'Manage Users', key: 'manageUsers', icon: '👥' },
     ],
   };
 
@@ -57,17 +66,7 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
 
   const sectionContent = {
     projectRequirementChecker: <ProjectRequirementChecker onBuilderAssign={onBuilderAssign} />,
-    projects: (
-      <ProjectsSection
-        projects={projects}
-        builders={dummyBuilders}
-        onAssignProject={bookProject}
-        selectedSlots={selectedSlots}
-        setSelectedSlots={setSelectedSlots}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-      />
-    ),
+    postProject: <PostProject setProjects={setProjects} projects={projects} user={user} />,
     availableBuilders: (
       <AvailableBuilders
         builders={dummyBuilders}
@@ -80,13 +79,17 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
         setProjects={setProjects}
       />
     ),
-    escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
+    escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} user={user} />,
     projectLogs: <ProjectLogs />,
     faqs: <FAQs />,
     materialSupply: <MaterialSupply onOrderMaterial={onOrderMaterial} />,
-    manageProjects: <div className="p-6">Manage Projects content goes here.</div>,
+    projects: <div className="p-6">Projects content goes here.</div>,
     setAvailability: <div className="p-6">Set Availability content goes here.</div>,
+    mentorship: <Mentorship builders={dummyBuilders} />,
     manageMaterials: <div className="p-6">Manage Materials content goes here.</div>,
+    manageBuilders: <div className="p-6">Manage Builders content (already rendered in AdminDashboard).</div>,
+    manageProjects: <ManageProjects projects={dummyProjects} />,
+    manageUsers: <ManageUsers users={dummyUsers} />,
   };
 
   const handleLogout = () => {
@@ -96,11 +99,10 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
 
   return (
     <div className="min-h-screen flex flex-col bg-cream-bg">
-      {/* Top Navbar */}
       <nav className="bg-white p-6 flex justify-between items-center shadow-md border-b border-gray-200">
         <div className="flex items-center space-x-4">
           <span className="text-text-dark">
-            Welcome, {user?.first_name} {user?.last_name} ({user?.user_type}) 
+            Welcome, {user?.first_name} {user?.last_name} ({user?.user_type})
             {user?.location ? ` - Location: ${user.location}` : ''}
           </span>
         </div>
@@ -115,7 +117,6 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
         </div>
       </nav>
 
-      {/* Sidebar */}
       <div className="flex">
         <div
           className={`w-64 bg-dark-purple text-white h-screen p-6 shadow-lg fixed z-10 left-0 top-0 ${isSidebarOpen ? 'block' : 'hidden md:block'}`}
@@ -151,7 +152,6 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
           </div>
         </div>
 
-        {/* Toggle Button for Mobile */}
         <button
           className="md:hidden p-2 bg-dark-purple text-white fixed top-2 left-2 rounded-lg z-20"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -161,7 +161,6 @@ const Header = ({ userType, activeSection, setActiveSection, onBuilderAssign, on
           </svg>
         </button>
 
-        {/* Main Content */}
         <div className="flex-1 p-6 ml-0 md:ml-64">
           <main className="relative top-0">{activeSection ? sectionContent[activeSection] : null}</main>
         </div>
