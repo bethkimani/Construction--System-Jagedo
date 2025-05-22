@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { TextField, Button, Typography, Alert, CircularProgress, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  CircularProgress,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from '@mui/material';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +23,8 @@ const Signup = () => {
     specialization: '',
     company: '',
     storeName: '',
+    fundiTrade: '',
+    contractorLicense: '',
   });
   const [loading, setLoading] = useState(false);
   const { signup, error } = useAuth();
@@ -26,12 +38,17 @@ const Signup = () => {
       const additionalInfo = {
         first_name: formData.first_name,
         last_name: formData.last_name,
-        ...(formData.user_type === 'builder' && { specialization: formData.specialization, company: formData.company }),
+        ...(formData.user_type === 'builder' && {
+          specialization: formData.specialization,
+          company: formData.company,
+        }),
         ...(formData.user_type === 'hardware' && { storeName: formData.storeName }),
+        ...(formData.user_type === 'fundi' && { trade: formData.fundiTrade }),
+        ...(formData.user_type === 'contractor' && { licenseNumber: formData.contractorLicense }),
       };
 
       await signup(formData.email, formData.password, formData.user_type, additionalInfo);
-      // Navigation is handled in AuthContext
+      // Navigation handled in AuthContext
     } catch (err) {
       console.error('Signup error:', err);
       setLoading(false);
@@ -74,6 +91,8 @@ const Signup = () => {
               <MenuItem value="client">Client</MenuItem>
               <MenuItem value="builder">Builder</MenuItem>
               <MenuItem value="hardware">Hardware Supplier</MenuItem>
+              <MenuItem value="fundi">Fundi</MenuItem>
+              <MenuItem value="contractor">Contractor</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
             </Select>
           </FormControl>
@@ -93,6 +112,8 @@ const Signup = () => {
             required
             className="mb-4"
           />
+
+          {/* Builder fields */}
           {formData.user_type === 'builder' && (
             <>
               <TextField
@@ -113,6 +134,8 @@ const Signup = () => {
               />
             </>
           )}
+
+          {/* Hardware Supplier fields */}
           {formData.user_type === 'hardware' && (
             <TextField
               label="Store Name"
@@ -123,6 +146,33 @@ const Signup = () => {
               className="mb-4"
             />
           )}
+
+          {/* Fundi fields */}
+          {formData.user_type === 'fundi' && (
+            <TextField
+              label="Trade"
+              value={formData.fundiTrade}
+              onChange={(e) => setFormData({ ...formData, fundiTrade: e.target.value })}
+              fullWidth
+              required
+              className="mb-4"
+              placeholder="e.g., Plumbing, Electrical"
+            />
+          )}
+
+          {/* Contractor fields */}
+          {formData.user_type === 'contractor' && (
+            <TextField
+              label="License Number"
+              value={formData.contractorLicense}
+              onChange={(e) => setFormData({ ...formData, contractorLicense: e.target.value })}
+              fullWidth
+              required
+              className="mb-4"
+              placeholder="Enter contractor license number"
+            />
+          )}
+
           <Button type="submit" variant="contained" fullWidth disabled={loading}>
             {loading ? <CircularProgress size={24} /> : 'Sign Up'}
           </Button>
