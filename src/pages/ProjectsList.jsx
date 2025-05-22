@@ -1,26 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Typography, Box, Alert, CircularProgress, LinearProgress, Button } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'; // Added
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'; // Added
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Header from '../components/Header';
-import ProjectRequirementChecker from '../components/ProjectRequirementChecker';
-import ProjectsSection from '../components/ProjectsSection';
-import AvailableBuilders from '../components/AvailableBuilders';
-import EscrowManagement from '../components/EscrowManagement';
-import ProjectLogs from '../components/ProjectLogs';
-import FAQs from '../components/FAQs';
-import MaterialSupply from '../components/MaterialSupply';
 import { dummyProjects, dummyBuilders } from '../data/dummyData';
 
 const ProjectList = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
-  const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeSection, setActiveSection] = useState('projectRequirementChecker');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSlots, setSelectedSlots] = useState({});
 
@@ -39,18 +31,9 @@ const ProjectList = () => {
     }
     setTimeout(() => {
       setProjects(dummyProjects);
-      setProgress(calculateProgress(dummyProjects));
       setLoading(false);
     }, 1000);
   }, [user, navigate]);
-
-  const calculateProgress = (projects) => {
-    if (projects.length === 0) return 0;
-    const totalProgress = projects.reduce((sum, project) => {
-      return sum + parseInt(project.progress) || 0;
-    }, 0);
-    return totalProgress / projects.length;
-  };
 
   const handleBuilderAssign = (builder) => {
     setProjects((prev) => {
@@ -87,73 +70,38 @@ const ProjectList = () => {
     });
   };
 
-  const sections = {
-    projectRequirementChecker: <ProjectRequirementChecker onBuilderAssign={handleBuilderAssign} />,
-    projects: <ProjectsSection
-      projects={projects}
-      builders={dummyBuilders}
-      onAssignProject={bookProject}
-      selectedSlots={selectedSlots}
-      setSelectedSlots={setSelectedSlots}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-    />,
-    availableBuilders: (
-      <AvailableBuilders
-        builders={dummyBuilders}
-        onAssignProject={bookProject}
-        selectedSlots={selectedSlots}
-        setSelectedSlots={setSelectedSlots}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        projects={projects}
-        setProjects={setProjects}
-      />
-    ),
-    escrowManagement: <EscrowManagement projects={projects} builders={dummyBuilders} />,
-    projectLogs: <ProjectLogs />,
-    faqs: <FAQs />,
-    materialSupply: <MaterialSupply onOrderMaterial={handleOrderMaterial} />,
-  };
-
-  console.log('ProjectList rendering sections:', sections);
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <CircularProgress />
+      <div className="flex items-center justify-center min-h-screen bg-cream-bg">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-dark-purple"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <Alert severity="error">{error}</Alert>
+      <div className="p-6 bg-cream-bg">
+        <div className="bg-red-100 text-red-700 p-4 rounded">{error}</div>
       </div>
     );
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}> {/* Wrap with LocalizationProvider */}
-      <div className="p-6">
-        <Header />
-        <Typography variant="h4" className="mb-6 text-gray-800">
-          Project Dashboard
-        </Typography>
-        <Box className="mb-6">
-          <Typography variant="h6">Project Progress Tracker</Typography>
-          <LinearProgress variant="determinate" value={progress} className="mt-2" />
-          <Typography>{progress}% Complete</Typography>
-        </Box>
-        {Object.keys(sections).map((sectionKey) => (
-          <Box key={sectionKey} className="mb-8">
-            {sections[sectionKey]}
-          </Box>
-        ))}
-        <Button variant="contained" color="secondary" onClick={logout} className="mt-6">
-          Logout
-        </Button>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <div className="min-h-screen bg-cream-bg">
+        <Header
+          userType="client"
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          onBuilderAssign={handleBuilderAssign}
+          onOrderMaterial={handleOrderMaterial}
+          projects={projects}
+          setProjects={setProjects}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedSlots={selectedSlots}
+          setSelectedSlots={setSelectedSlots}
+        />
       </div>
     </LocalizationProvider>
   );

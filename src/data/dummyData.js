@@ -1,3 +1,5 @@
+// dummyData.js
+
 // Dummy users for authentication (used in AuthContext.jsx, Login.jsx, Signup.jsx)
 export let dummyUsers = [
   {
@@ -11,6 +13,7 @@ export let dummyUsers = [
     license_number: 'LIC123',
     id_number: 'ID123',
     address: '123 Main St',
+    location: 'Nairobi',
   },
   {
     id: 2,
@@ -22,6 +25,7 @@ export let dummyUsers = [
     phone: '234-567-8901',
     specialization: 'Civil Engineer',
     company: 'BuildCo',
+    location: 'Mombasa',
   },
   {
     id: 3,
@@ -31,6 +35,7 @@ export let dummyUsers = [
     last_name: 'Brown',
     user_type: 'hardware',
     storeName: 'Hardware Store A',
+    location: 'Kisumu',
   },
   {
     id: 4,
@@ -39,6 +44,27 @@ export let dummyUsers = [
     first_name: 'Admin',
     last_name: 'User',
     user_type: 'admin',
+    location: 'Eldoret',
+  },
+  {
+    id: 5,
+    email: 'fundi1@example.com',
+    password: 'password123',
+    first_name: 'Peter',
+    last_name: 'Kamau',
+    user_type: 'fundi',
+    trade: 'Plumbing',
+    location: 'Nakuru',
+  },
+  {
+    id: 6,
+    email: 'contractor1@example.com',
+    password: 'password123',
+    first_name: 'Alice',
+    last_name: 'Mwangi',
+    user_type: 'contractor',
+    licenseNumber: 'CON12345',
+    location: 'Thika',
   },
 ];
 
