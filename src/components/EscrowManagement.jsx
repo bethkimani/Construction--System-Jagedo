@@ -1,40 +1,33 @@
 import React, { useState } from 'react';
-import { Typography, TextField, Button } from '@mui/material';
 import { aiSendNotification } from '../utils/aiAutomation';
 
 const EscrowManagement = ({ projects, builders }) => {
   const [escrowAmount, setEscrowAmount] = useState(1000);
 
   const handleEscrowPayment = () => {
-    const project = projects[0]; // Use the first project for simplicity
+    const project = projects[0];
     const builder = builders.find((b) => `${b.first_name} ${b.last_name}` === project?.builder) || {};
     aiSendNotification('escrow@bank.com', `Escrow payment request: ${escrowAmount} for ${project?.client} to ${builder.company}`);
     aiSendNotification(builder.email || 'admin@construction.com', `Escrow payment of ${escrowAmount} received for ${project?.client}`);
   };
 
   return (
-    <div className="space-y-4 mt-4">
-      <Typography variant="h5" className="text-gray-800 font-semibold">
-        Escrow Payment Management
-      </Typography>
-      <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-        <TextField
-          label="Escrow Amount (KES)"
+    <div className="space-y-4">
+      <h2 className="text-2xl font-semibold text-primary-blue">Escrow Payment Management</h2>
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <input
           type="number"
           value={escrowAmount}
           onChange={(e) => setEscrowAmount(e.target.value)}
-          fullWidth
-          variant="outlined"
-          className="mb-4"
+          placeholder="Escrow Amount (KES)"
+          className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue mb-4"
         />
-        <Button
-          variant="contained"
-          color="primary"
+        <button
           onClick={handleEscrowPayment}
-          className="w-full"
+          className="w-full bg-primary-blue text-white p-2 rounded hover:bg-blue-800"
         >
           Process Escrow Payment
-        </Button>
+        </button>
       </div>
     </div>
   );

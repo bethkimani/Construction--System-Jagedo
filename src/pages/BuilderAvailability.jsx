@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Button, Box, Alert, Typography, CircularProgress } from '@mui/material';
-import { DateTimePicker } from '@mui/x-date-pickers';
 import Header from '../components/Header';
+import { DateTimePicker } from '@mui/x-date-pickers';
 
 const BuilderAvailability = () => {
   const { user } = useAuth();
@@ -38,41 +37,50 @@ const BuilderAvailability = () => {
   };
 
   return (
-    <div className="p-4">
-      <Header />
-      <div className="mt-4 max-w-md mx-auto">
-        <Typography variant="h4">Set Builder Availability</Typography>
-        <form onSubmit={handleSubmit}>
-          <DateTimePicker
-            label="Start Time"
-            value={availability.start_datetime}
-            onChange={(newValue) =>
-              setAvailability({ ...availability, start_datetime: newValue })
-            }
-            className="mt-4 w-full"
-          />
-          <DateTimePicker
-            label="End Time"
-            value={availability.end_datetime}
-            onChange={(newValue) =>
-              setAvailability({ ...availability, end_datetime: newValue })
-            }
-            minDateTime={availability.start_datetime}
-            className="mt-4 w-full"
-          />
-          {error && <Alert severity="error" className="mt-4">{error}</Alert>}
-          {success && <Alert severity="success" className="mt-4">{success}</Alert>}
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={loading || !availability.start_datetime || !availability.end_datetime}
-            className="mt-4"
-          >
-            {loading ? <CircularProgress size={24} /> : 'Add Availability'}
-          </Button>
-        </form>
-      </div>
+    <div className="space-y-4">
+      <h2 className="text-2xl font-semibold text-primary-blue">Set Builder Availability</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <DateTimePicker
+          label="Start Time"
+          value={availability.start_datetime}
+          onChange={(newValue) =>
+            setAvailability({ ...availability, start_datetime: newValue })
+          }
+          renderInput={(params) => (
+            <input
+              {...params}
+              className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue"
+            />
+          )}
+        />
+        <DateTimePicker
+          label="End Time"
+          value={availability.end_datetime}
+          onChange={(newValue) =>
+            setAvailability({ ...availability, end_datetime: newValue })
+          }
+          minDateTime={availability.start_datetime}
+          renderInput={(params) => (
+            <input
+              {...params}
+              className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue"
+            />
+          )}
+        />
+        {error && <div className="bg-red-100 text-red-700 p-4 rounded">{error}</div>}
+        {success && <div className="bg-green-100 text-green-700 p-4 rounded">{success}</div>}
+        <button
+          type="submit"
+          className="w-full bg-primary-blue text-white p-2 rounded hover:bg-blue-800"
+          disabled={loading || !availability.start_datetime || !availability.end_datetime}
+        >
+          {loading ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-white mx-auto"></div>
+          ) : (
+            'Add Availability'
+          )}
+        </button>
+      </form>
     </div>
   );
 };

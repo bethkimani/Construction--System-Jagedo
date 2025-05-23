@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Typography, TextField, Button, Alert } from '@mui/material';
 import { aiProjectRequirementChecker } from '../utils/aiAutomation';
 
 const ProjectRequirementChecker = ({ onBuilderAssign }) => {
@@ -22,34 +21,27 @@ const ProjectRequirementChecker = ({ onBuilderAssign }) => {
 
   return (
     <div className="space-y-4">
-      <Typography variant="h5" className="text-gray-800 font-semibold">
-        Project Requirement Checker
-      </Typography>
-      <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-        <Typography variant="h6" className="mb-4 text-gray-700">
-          AI Project Requirement Checker
-        </Typography>
-        <TextField
-          label="Enter your project requirements"
+      <h2 className="text-2xl font-semibold text-primary-blue">Project Requirement Checker</h2>
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-lg font-medium text-text-gray mb-4">AI Project Requirement Checker</h3>
+        <input
+          type="text"
+          placeholder="Enter your project requirements"
           value={requirements}
           onChange={(e) => setRequirements(e.target.value)}
-          fullWidth
-          variant="outlined"
-          className="mb-4"
+          className="w-full p-2 border border-light-gray rounded focus:outline-none focus:ring-2 focus:ring-primary-blue mb-4"
         />
-        <Button
-          variant="contained"
-          color="primary"
+        <button
           onClick={handleCheck}
-          className="w-full"
+          className="w-full bg-primary-blue text-white p-2 rounded hover:bg-blue-800"
         >
           Check Requirements
-        </Button>
-        {error && <Alert severity="error" className="mt-4">{error}</Alert>}
+        </button>
+        {error && <div className="bg-red-100 text-red-700 p-4 rounded mt-4">{error}</div>}
         {result && (
           <div className="mt-4 space-y-2">
-            <Typography>Recommendation: {result.recommendation}</Typography>
-            <Typography>Complexity: {result.complexity}</Typography>
+            <p className="text-text-gray">Recommendation: {result.recommendation}</p>
+            <p className="text-text-gray">Complexity: {result.complexity}</p>
           </div>
         )}
       </div>

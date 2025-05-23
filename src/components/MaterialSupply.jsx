@@ -1,107 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { Typography, Button, TextField, Alert } from '@mui/material';
+import React, { useState } from 'react'; // Ensure this line is present
 import { useAuth } from '../context/AuthContext';
+import Header from '../components/Header';
+import MaterialSupply from '../components/MaterialSupply';
 
-const MaterialSupply = ({ onOrderMaterial }) => {
+const Materials = () => {
   const { user } = useAuth();
-  const [materials, setMaterials] = useState([
-    { id: 1, name: 'Cement', price: 500, supplier: 'Hardware Store A' },
-    { id: 2, name: 'Steel Bars', price: 1000, supplier: 'Hardware Store A' },
-  ]);
-  const [newMaterial, setNewMaterial] = useState({ name: '', price: '' });
-  const [error, setError] = useState('');
+  const [activeSection, setActiveSection] = useState('manageMaterials');
 
-  const handleAddMaterial = () => {
-    if (!newMaterial.name || !newMaterial.price) {
-      setError('Please fill in all fields');
-      return;
-    }
-    setMaterials([
-      ...materials,
-      {
-        id: materials.length + 1,
-        name: newMaterial.name,
-        price: parseFloat(newMaterial.price),
-        supplier: user.storeName || 'Unknown Supplier',
-      },
-    ]);
-    setNewMaterial({ name: '', price: '' });
-    setError('');
-  };
+  if (user.user_type !== 'hardware') {
+    return (
+      <div className="p-6">
+        <div className="bg-red-100 text-red-700 p-4 rounded">
+          Access Denied: This page is for Hardware Suppliers only.
+        </div>
+      </div>
+    );
+  }
 
-  const handleOrderMaterial = (material) => {
-    if (onOrderMaterial) {
-      onOrderMaterial(material);
-    }
+  const sections = {
+    manageMaterials: <MaterialSupply />,
   };
 
   return (
-    <div className="space-y-4">
-      <Typography variant="h5" className="text-gray-800 font-semibold">
-        Material Supply
-      </Typography>
-      <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-        {user.user_type === 'hardware' ? (
-          <>
-            <Typography variant="h6" className="mb-4 text-gray-700">
-              Add New Material
-            </Typography>
-            <TextField
-              label="Material Name"
-              value={newMaterial.name}
-              onChange={(e) => setNewMaterial({ ...newMaterial, name: e.target.value })}
-              fullWidth
-              className="mb-4"
-            />
-            <TextField
-              label="Price (KES)"
-              type="number"
-              value={newMaterial.price}
-              onChange={(e) => setNewMaterial({ ...newMaterial, price: e.target.value })}
-              fullWidth
-              className="mb-4"
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddMaterial}
-              className="w-full"
-            >
-              Add Material
-            </Button>
-            {error && <Alert severity="error" className="mt-4">{error}</Alert>}
-          </>
-        ) : (
-          <Typography variant="h6" className="mb-4 text-gray-700">
-            Available Materials
-          </Typography>
-        )}
-        <div className="mt-4">
-          {materials.length === 0 ? (
-            <Typography>No materials available.</Typography>
-          ) : (
-            materials.map((material) => (
-              <div key={material.id} className="mb-2 p-2 border rounded">
-                <Typography>Name: {material.name}</Typography>
-                <Typography>Price: {material.price} KES</Typography>
-                <Typography>Supplier: {material.supplier}</Typography>
-                {user.user_type === 'client' && (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleOrderMaterial(material)}
-                    className="mt-2"
-                  >
-                    Order Material
-                  </Button>
-                )}
-              </div>
-            ))
-          )}
+    <div className="flex">
+      <div className="md:ml-64 flex-1 p-6">
+        <Header userType="hardware" activeSection={activeSection} setActiveSection={setActiveSection} />
+        <div className="mt-6">
+          <h1 className="text-3xl font-bold text-primary-blue mb-6">
+            Hardware Supplier Dashboard - {user.storeName}
+          </h1>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            {sections[activeSection]}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default MaterialSupply;
+export default Materials;
